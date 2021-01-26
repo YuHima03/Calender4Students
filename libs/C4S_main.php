@@ -34,15 +34,17 @@ class page{
 
 class account{
     private $info = [
-
+        "id" => null,
+        "name" => null
     ];
 
     function __construct(){
         $DB = new database();
     }
 
-    public function getinfo(){
-        return $this->info;
+    public function getstatus(){
+        //ログインしてるかは isset(SAMPLE->getstatus()["id"]) で確認可能
+        return $this->status;
     }
 }
 
@@ -50,8 +52,8 @@ class database{
     private $mysql = null;
     private $ini_data = null;
 
-    function __construct(){
-        
+    function __construct($rPATH){
+        $this->ini_data = parse_ini_file($rPATH . "libs/PDO_data.ini");
     }
 
     public function is_connected(){
@@ -59,9 +61,9 @@ class database{
     }
 
     public function connect($name){
-        if(isset($this->ini_data)){
+        if(isset($this->ini_data["user"]) && isset($this->init_data["pass"])){
             try{
-                $this->mysql = new PDO();
+                $this->mysql = new PDO("mysql:dbname=C4S;host=localhost", $this->ini_data["user"], $this->ini_data["pass"]);
                 return true;
             }
             catch(Exception $e){
@@ -71,6 +73,11 @@ class database{
         else{
             return false;
         }
+    }
+
+    public function disconnect(){
+        $this->mysql = null;
+        return true;
     }
 }
 
