@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head prefix="og: http://ogp.me/ns#">
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <title><?=$this->page_info["TITLE"]."｜Calender4Students"?></title>
+    <!--desc-->
+    <meta name="author" content="YuHima" />
+    <meta name="description" content="<?=$this->page_info['DESC']?>" />
+    <!--OGP-->
+    <meta name="og:url" content="<?=$this->page_info['URL']?>" />
+    <meta name="og:title" content="<?=$this->page_info['TITLE']?>" />
+    <meta name="og:image" content="<?=$this->page_info['IMAGE']?>" />
+    <meta name="og:description" content="<?=$this->page_info['DESC']?>" />
+</head>
+<body>
+    <!--header-->
+    <?php if($this->gen_opt["header"]):?>
+    <header>
+        <h1>Calender 4 Students</h1>
+    </header>
+    <?php endif;?>
+    <!--Main content-->
+    <?php echo $main_txt; ?>
+    <!--footer-->
+    <?php if($this->gen_opt["footer"]):?>
+    <footer>
+        
+    </footer>
+    <?php endif;?>
+</body>
+</html>
