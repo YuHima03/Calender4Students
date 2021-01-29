@@ -1,6 +1,11 @@
+<?php if($mode == "HTML_START" || $mode == "ALL" && !$this->gen_flag["html_start"]): ?>
 <!DOCTYPE html>
-<html lang="en">
-<?php if($mode == "HEAD" || $mode == "ALL" && !$this->gen_flag["head"]): ?>
+<html lang="ja">
+<?php
+    $this->gen_flag["html_start"] = true;
+    endif;
+    if($mode == "HEAD" || $mode == "ALL" && !$this->gen_flag["head"]):
+?>
 <head prefix="og: http://ogp.me/ns#">
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1.0">
@@ -20,16 +25,14 @@
     if($mode == "BODY" || $mode == "ALL" && !$this->gen_flag["body"]):
 ?>
 <body>
+    <?php if($this->gen_opt["header"] && ((isset($option)) ? ($option == "header") : true)):?>
     <!--header-->
-    <?php if($this->gen_opt["header"]):?>
-    <header>
-        <h1>Calender 4 Students</h1>
-    </header>
     <?php endif;?>
     <!--Main content-->
     <?php if(isset($inner_html)) echo $inner_html; ?>
+    
+    <?php if($this->gen_opt["footer"] && ((isset($option)) ? ($option == "footer") : true)):?>
     <!--footer-->
-    <?php if($this->gen_opt["footer"]):?>
     <footer>
         
     </footer>
@@ -39,4 +42,9 @@
     $this->gen_flag["body"] = true;
     endif;
 ?>
+<?php if($mode == "HTML_END" || $mode == "ALL" && !$this->gen_flag["html_open"]): ?>
 </html>
+<?php
+    $this->gen_flag["html_start"] = true;
+    endif;
+?>

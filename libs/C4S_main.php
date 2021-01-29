@@ -1,7 +1,7 @@
 <?php
 
 class page{
-    private $top_lib = "./";
+    private $relPATH = "./";
     private $page_info = [
         "TITLE" => "Calender4Students",
         "DESC"  => "学生のためのカレンダー 名称は未定です...",
@@ -19,7 +19,9 @@ class page{
     ];
     private $gen_flag = [
         "head"  =>  false,
-        "body"  =>  false
+        "body"  =>  false,
+        "html_start"    =>  false,
+        "html_end"      =>  false
     ];
 
     function __construct($rPATHnum = 0){
@@ -27,7 +29,7 @@ class page{
             $this->top_lib .= "../";
         }
 
-        $this->account = new account($this->top_lib);
+        $this->account = new account($this->relPATH);
         $this->account_info += $this->account->getinfo();
     }
 
@@ -54,27 +56,70 @@ class page{
         return true;
     }
 
-    public function gen_page($mode = "ALL", $inner_html = null){
-        if(isset($mode)){
-            include "{$this->top_lib}include/template.html";
-            return true;
+    public function gen_page($mode = "_ALL", $inner_html = null){
+        $tmp = preg_split("/\//", $mode);
+        $mode = $tmp[0];
+        $option = (isset($tmp[1])) ? $tmp[1] : null;
+
+        $mode_list = ["head", "body"];
+
+        if(in_array($mode, $mode_list, true)){
+            include "{$this->relPATH}include/{$mode}.php";
+        }
+        //auto_setting
+        else if($mode === "_AUTO" && gettype($mode) === "array"){
+            foreach($data as $key => $inner_html){
+                $this->gen_page($key, $value);
+            }
+        }
+        //print_all
+        else if($mode === "_ALL"){
+            foreach($key as $mode_list){
+                $this->gen_page($key, ((isset($option[$key])) ? $option[$key] : null));
+            }
+        }
+
+        return true;
+    }
+
+    //add_css
+    public function add_css($href){
+        if(is_array($href)){
+            $ret_data = "";
+            foreach($href as $v){
+                $ret_data .= $this->add_css($v);
+            }
+            return $ret_data;
         }
         else{
-            return false;
+            $href = $this->relPATH . $href;
+            return "<link rel='stylesheet' href='{$href}' />";
         }
+
+        return false;
     }
 }
 
 class account{
     private $info = [
-        "id" => null,
-        "name" => null
+        "id"        =>  null,
+        "name"      =>  null,
+        "errors"    =>  []
     ];
 
     function __construct($rPATH){
         $DB = new database($rPATH);
-        if($DB->connect()){
-            $DB->disconnect();
+
+        if(isset($_SESSION['token']) && isset($_COOKIE['token'])){
+            if($DB->connect()){
+                //ログイン情報をDBと照合
+                //切断
+                $DB->disconnect();
+            }
+            else{
+                $this->info["errors"][] = "DB_CONNECTION_ERROR";
+                return;
+            }
         }
     }
 

@@ -13,7 +13,7 @@ if($page->get_account_info()["login"]){
 }
 
 $page->set_info([
-    "TITLE" => "ようこそ"
+    "TITLE" =>  "ようこそ"
 ]);
 
 $page->set_gen_option([
@@ -24,10 +24,42 @@ $page->set_gen_option([
 //出力
 ?>
 
+<!DOCTYPE html>
+<html lang="ja">
+<!--head-->
 <?php
-$page->gen_page("HEAD");
-?>
-
-<?php
-$page->gen_page("ALL");
-?>
+$page->gen_page("head", $page->add_css("style/top.css")); ?>
+<!--body-->
+<body>
+    <!--header-->
+    <?php $page->gen_page("body/header"); ?>
+    <!--main_contents-->
+    <main>
+        <div id="container">
+            <div id="title">
+                <div>
+                    <div class="main_title">
+                        <h1>学生の為の</h1>
+                        <h1>カレンダー</h1>
+                    </div>
+                    <h3 class="sub_title">面倒な学習の管理をこれひとつで。</h3>
+                </div>
+            </div>
+            <div id="mode_selecter">
+                <div>
+                    <h3>さぁ、始めましょう！</h3>
+                </div>
+                <div class="selecter">
+                    <input type="button" name="without_login" value="アカウント無しで利用"/>
+                    <input type="button" name="create_account" value="アカウントを作成して利用"/>
+                    <span>上の二つの違いは何ですか？</span>
+                    <span>アカウントをお持ちですか？</span>
+                    <input type="button" name="login" value="ログインする"/>
+                </div>
+            </div>
+        </div>
+    </main>
+    <!--footer-->
+    <?php $page->gen_page("body/footer"); ?>
+</body>
+</html>
