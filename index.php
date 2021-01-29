@@ -20,11 +20,14 @@ $page->set_gen_option([
     
 ]);
 
-$main_text = <<<EOD
-EOD;
-
 //////////////////////////////////////////////////
 //出力
-$page->gen_page($main_text);
+?>
 
+<?php
+$page->gen_page("HEAD");
+?>
+
+<?php
+$page->gen_page("ALL");
 ?>

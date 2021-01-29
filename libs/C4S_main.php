@@ -17,6 +17,10 @@ class page{
         "header_add"    =>  [],
         "footer"        =>  true,
     ];
+    private $gen_flag = [
+        "head"  =>  false,
+        "body"  =>  false
+    ];
 
     function __construct($rPATHnum = 0){
         for($i = 1; $i <= $rPATHnum; $i++){
@@ -50,9 +54,14 @@ class page{
         return true;
     }
 
-    public function gen_page($main_txt){
-        include "{$this->top_lib}include/template.html";
-        return true;
+    public function gen_page($mode = "ALL", $inner_html = null){
+        if(isset($mode)){
+            include "{$this->top_lib}include/template.html";
+            return true;
+        }
+        else{
+            return false;
+        }
     }
 }
 

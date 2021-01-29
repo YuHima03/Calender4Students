@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+<?php if($mode == "HEAD" || $mode == "ALL" && !$this->gen_flag["head"]): ?>
 <head prefix="og: http://ogp.me/ns#">
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1.0">
@@ -13,6 +14,11 @@
     <meta name="og:image" content="<?=$this->page_info['IMAGE']?>" />
     <meta name="og:description" content="<?=$this->page_info['DESC']?>" />
 </head>
+<?php
+    $this->gen_flag["head"] = true;
+    endif;
+    if($mode == "BODY" || $mode == "ALL" && !$this->gen_flag["body"]):
+?>
 <body>
     <!--header-->
     <?php if($this->gen_opt["header"]):?>
@@ -21,7 +27,7 @@
     </header>
     <?php endif;?>
     <!--Main content-->
-    <?php echo $main_txt; ?>
+    <?php if(isset($inner_html)) echo $inner_html; ?>
     <!--footer-->
     <?php if($this->gen_opt["footer"]):?>
     <footer>
@@ -29,4 +35,8 @@
     </footer>
     <?php endif;?>
 </body>
+<?php
+    $this->gen_flag["body"] = true;
+    endif;
+?>
 </html>
