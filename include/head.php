@@ -10,6 +10,8 @@
     <meta name="og:title" content="<?=$this->page_info['TITLE']?>" />
     <meta name="og:image" content="<?=$this->page_info['IMAGE']?>" />
     <meta name="og:description" content="<?=$this->page_info['DESC']?>" />
+    <!--jQuery-->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <!--additional-->
     <?=$inner_html?>
 </head>

@@ -26,7 +26,7 @@ class page{
 
     function __construct($rPATHnum = 0){
         for($i = 1; $i <= $rPATHnum; $i++){
-            $this->top_lib .= "../";
+            $this->relPATH .= "../";
         }
 
         $this->account = new account($this->relPATH);
@@ -98,6 +98,31 @@ class page{
 
         return false;
     }
+
+    //add_js
+    public function add_js($href){
+        if(is_array($href)){
+            $ret_data = "";
+            foreach($href as $v){
+                $ret_data .= $this->add_js($v);
+            }
+            return $ret_data;
+        }
+        else{
+            $href = $this->relPATH . $href;
+            return "<script src='{$href}'></script>";
+        }
+    }
+
+    /** jsに変数を渡す
+     * @param array $data 
+     * @return string
+    */
+    public function put_data($data){
+        $ret = "<script>PHP_DATA = " . json_encode($data) . ";</script>";
+        echo $ret;
+        return $ret;
+    }
 }
 
 class account{
@@ -129,6 +154,8 @@ class account{
     }
 }
 
+//////////////////////////////////////////////////
+//データベース
 class database{
     private $mysql = null;
     private $ini_data = null;
@@ -142,6 +169,7 @@ class database{
     }
 
     public function connect(){
+        //ini_dataはiniファイルから取得するデータベース情報ね
         if(isset($this->ini_data["user"]) && isset($this->ini_data["pass"])){
             try{
                 $this->mysql = new PDO("mysql:dbname=C4S;host=localhost", $this->ini_data["user"], $this->ini_data["pass"]);
@@ -163,8 +191,37 @@ class database{
     }
 
     public function execute($text){
-        $this->mysql->query($text);
+        if($this->is_connected()){
+            $fst = preg_split("/ /", $text)[0];
+            $result = null;
+            try{
+                if ($fst == "SELECT" or $fst == "select"){ //select文
+                    $result = $this->mysql->query($text)->fetchAll(PDO::FETCH_ASSOC);
+                    return $result;
+                    
+                }
+                else {
+                    $this->mysql->query($text);
+                    return true;
+                }
+            }
+            catch (Exception $e){
+                echo $e;
+                $this->errors[] = "DB_PROC_ERROR";
+                return false;
+            }
+        }
+        else{
+            return false;
+        }
     }
+}
+
+//////////////////////////////////////////////////
+//ランダムな文字列を返す($lenの長さの文字列を$modeでハッシュ化する)
+function rand_text($len = 128, $mode = "sha256"){
+    $rand_b = openssl_random_pseudo_bytes($len);
+    return ($mode == "none") ? bin2hex($rand_b) : hash($mode, $rand_b);
 }
 
 ?>

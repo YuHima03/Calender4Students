@@ -20,6 +20,10 @@ $page->set_gen_option([
     
 ]);
 
+//送信元確認用のトークン生成
+$form_token = rand_text();
+$_SESSION['form_token'] = $form_token;
+
 //////////////////////////////////////////////////
 //出力
 ?>
@@ -27,8 +31,13 @@ $page->set_gen_option([
 <!DOCTYPE html>
 <html lang="ja">
 <!--head-->
-<?php
-$page->gen_page("head", $page->add_css("style/top.css")); ?>
+<?php $page->gen_page("head", 
+    $page->add_css("style/top.css")
+    . $page->add_js(["js/main.js", "js/top.js"])
+    . $page->put_data([
+        "form_token" => $form_token
+    ])
+); ?>
 <!--body-->
 <body>
     <!--header-->
@@ -50,11 +59,11 @@ $page->gen_page("head", $page->add_css("style/top.css")); ?>
                     <h3>さぁ、始めましょう！</h3>
                 </div>
                 <div class="selecter">
-                    <input type="button" name="without_login" value="アカウント無しで利用"/>
+                    <input type="button" name="without_login" value="アカウント無しで利用" />
                     <input type="button" name="create_account" value="アカウントを作成して利用"/>
                     <span>上の二つの違いは何ですか？</span>
                     <span>アカウントをお持ちですか？</span>
-                    <input type="button" name="login" value="ログインする"/>
+                    <input type="button" name="login" value="ログインする" data-goto="login"/>
                 </div>
             </div>
         </div>
