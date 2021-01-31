@@ -24,15 +24,35 @@ function setAttrs(E, value){
     });
 }
 
-/** 一時的に使うフォーム要素を返す*/
-function createTmpForm(action, method){
-    let tmp_form = document.createElement("form");
-    tmp_form.action = action;
-    tmp_form.name = "tmp";
-    tmp_form.method = method;
-    tmp_form.style.display = "none";
+/** 一時的に使うフォーム要素を作成*/
+class createTmpForm{
+    constructor(action, method){
+        this.tmp_form = document.createElement("form");
+        this.tmp_form.action = action;
+        this.tmp_form.name = "tmp";
+        this.tmp_form.method = method;
+        this.tmp_form.style.display = "none";
+    }
 
-    return tmp_form;
+    addInputElement(name, type, value = ""){
+        let tmp_input = document.createElement("input");
+        tmp_input.name = name;
+        tmp_input.type = type;
+        tmp_input.value = value;
+
+        this.tmp_form.appendChild(tmp_input);
+
+        return true;
+    }
+
+    getElement(){
+        return this.tmp_form;
+    }
+
+    submit(parentElement){
+        parentElement.appendChild(this.tmp_form);
+        this.tmp_form.submit();
+    }
 }
 
 /**ランダムな文字列を返す (lenの長さの文字列) */
@@ -63,7 +83,7 @@ $(function(){
                     window.open(go_to[0], "_blank", "noopener noreferrer");
                 }
                 else{
-                    location.href(go_to[0]);
+                    window.location.href = go_to[0];
                 }
             }
         });

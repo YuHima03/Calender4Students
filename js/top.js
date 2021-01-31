@@ -8,17 +8,12 @@
  */
 
 $(function(){
-    //ログイン無しで利用を押したとき
-    document.querySelector("#mode_selecter > .selecter > input[name='without_login']").addEventListener("click", (E) => {
+    //アカウント無しで利用を押したとき
+    document.querySelector("#mode_selecter > .selecter > input[name='no_signup']").addEventListener("click", (E) => {
         let mode_selecter = document.querySelector("#mode_selecter");
-        let tmp_form = createTmpForm("", "POST");
-
-        //tmpっていうフォーム要素を追加
-        mode_selecter.appendChild(tmp_form);
-
-        console.log(PHP_DATA);
-
-        //フォーム要素削除
-        mode_selecter.removeChild(tmp_form);
+        //一時的なフォーム生成&送信
+        let tmp_form = new createTmpForm("no_signup/index.php", "POST");
+        tmp_form.addInputElement("form_token", "hidden", PHP_DATA.form_token);
+        tmp_form.submit(mode_selecter);
     });
 });

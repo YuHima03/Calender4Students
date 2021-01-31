@@ -59,8 +59,8 @@ $_SESSION['form_token'] = $form_token;
                     <h3>さぁ、始めましょう！</h3>
                 </div>
                 <div class="selecter">
-                    <input type="button" name="without_login" value="アカウント無しで利用" />
-                    <input type="button" name="create_account" value="アカウントを作成して利用"/>
+                    <input type="button" name="no_signup" value="アカウント無しで利用" />
+                    <input type="button" name="signup" value="アカウントを作成" data-goto="signup"/>
                     <span>上の二つの違いは何ですか？</span>
                     <span>アカウントをお持ちですか？</span>
                     <input type="button" name="login" value="ログインする" data-goto="login"/>
