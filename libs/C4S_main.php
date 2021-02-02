@@ -131,13 +131,32 @@ class account{
         "name"      =>  null,
         "errors"    =>  []
     ];
+    private $relPATH = "./";
 
     function __construct($rPATH){
-        $DB = new database($rPATH);
+        $this->relPATH = $rPATH;
+        $DB = new database($this->relPATH);
 
         if(isset($_SESSION['token']) && isset($_COOKIE['token'])){
             if($DB->connect()){
                 //ログイン情報をDBと照合
+                $token = [$_SESSION['token'], $_COOKIE['token']];
+                foreach($DB->execute("SELECT * FROM `login_session` WHERE `session_token`='{$token[0]}'") as $data){
+                    if($data["cookie_token"] == $token[1]){
+                        //認証完了
+                    }
+                    else{
+                        //不正ログイン？
+                        $DB->execute("DELETE FROM `login_session` WHERE `session_token`='{$token[0]}'");
+                        unset($_SESSION['token']);
+                        setcookie("__session", "", time()-1800, "/");
+                        setcookie("_token", "", time()-1800, "/");
+                        $this->info["errors"][] = "BAD_LOGIN_REQUEST";
+
+                        //ページ再読み込み
+                        header("Location: ./{$_SERVER[PHP_SELF]}");
+                    }
+                }
                 //切断
                 $DB->disconnect();
             }
@@ -151,6 +170,16 @@ class account{
     public function getinfo(){
         //ログインしてるかは isset(SAMPLE->getstatus()["id"]) で確認可能
         return $this->info;
+    }
+
+    public function logout($mode = "normal"){
+        if(isset($this->info["id"] || $mode == "force"){
+            $DB = new database($this->relPATH);
+            if($DB->connect()){
+                $DB->execute("DELETE FROM `login_session` WHERE `session_token`='{$_SESSION[token]}'");
+                $DB->disconnect();
+            }
+        }
     }
 }
 
@@ -199,6 +228,15 @@ class database{
                     $result = $this->mysql->query($text)->fetchAll(PDO::FETCH_ASSOC);
                     return $result;
                     
+                }
+                if ($fst == "INSERT" or $fst == "insert"){ //insert文
+                    try{
+                        $this->mysql->query($text);
+                    }
+                    catch(PDOException $e){
+                        return false;
+                    }
+                    return true;
                 }
                 else {
                     $this->mysql->query($text);
