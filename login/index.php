@@ -26,10 +26,22 @@ if(isset($_POST['account_id']) && isset($_POST['pass']) && isset($_POST['form_to
             //パスワードはハッシュ化したもので照合
             $account_id = $_POST['account_id'];
             $pass = hash("sha512", $_POST['pass']);
+            $auto_login = (int)(isset($_POST['auto_login']) && $_POST['auto_login'] == "on");
 
             //れっつら照合
             if($DB->execute("SELECT * FROM `account` WHERE `name`='{$account_id}' AND `password`='{$pass}'")){
-                echo "成功";
+                do{
+                    $now = date("Y-m-d H:i:s", time());
+                    $token = [rand_text(), rand_text()];
+                    //セッションをDBに登録
+                }while(!$DM->execute("INSERT INTO `login_session` (`account_id`, `start_datetime`, `session_token`, `cookie_token`, `auto_login`) VALUES ('{$account_id}', '{$now}', '{$token[0]}', '{$token[1]}', {$auto_login})"));
+
+                //セッションとクッキーにそれぞれトークンを保存
+                $_SESSION['_token'] = $token[0];
+                setcookie("_token", $token[1], time()+60*60*24*30, "/", "", false, true);
+
+                //転送
+                header("Location: ../");
             }
             else{
                 echo "IDまたはパスワードが違います、もう一度ご確認ください";
@@ -67,6 +79,7 @@ $_SESSION['form_token'] = $form_token;
                     <input type="password" name="pass" />
                     <input type="hidden" name="form_token" value="<?=$form_token?>" />
                     <input type="submit" value="ログイン" />
+                    <input type="checkbox" name="auto_login"/><p>自動ログイン</p>
                 </form>
             </div>
         </div>
