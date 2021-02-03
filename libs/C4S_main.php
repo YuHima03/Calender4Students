@@ -18,6 +18,7 @@ class page{
         "footer"        =>  true,
     ];
     private $gen_flag = [
+        "put_PHP_data"  =>  false,
         "head"  =>  false,
         "body"  =>  false,
         "html_start"    =>  false,
@@ -25,6 +26,7 @@ class page{
     ];
 
     function __construct($rPATHnum = 0){
+
         for($i = 1; $i <= $rPATHnum; $i++){
             $this->relPATH .= "../";
         }
@@ -118,10 +120,12 @@ class page{
      * @param array $data 
      * @return string
     */
-    public function put_data($data){
-        $ret = "<script>PHP_DATA = " . json_encode($data) . ";</script>";
-        echo $ret;
-        return $ret;
+    public function put_data($data, $force = false){
+        if(!$this->gen_flag["put_PHP_data"] || $force){
+            $ret = "<script>PHP_DATA = " . json_encode($data) . ";</script>";
+            $this->gen_flag["put_PHP_data"] = true;
+            return $ret;
+        }
     }
 }
 
@@ -137,24 +141,22 @@ class account{
         $this->relPATH = $rPATH;
         $DB = new database($this->relPATH);
 
-        if(isset($_SESSION['token']) && isset($_COOKIE['token'])){
+        if(isset($_SESSION['_token']) && isset($_COOKIE['_token'])){
             if($DB->connect()){
                 //ログイン情報をDBと照合
-                $token = [$_SESSION['token'], $_COOKIE['token']];
+                $token = [$_SESSION['_token'], $_COOKIE['_token']];
                 foreach($DB->execute("SELECT * FROM `login_session` WHERE `session_token`='{$token[0]}'") as $data){
                     if($data["cookie_token"] == $token[1]){
                         //認証完了
+                        setcookie("_login", "yes", 0, "/");
                     }
                     else{
                         //不正ログイン？
-                        $DB->execute("DELETE FROM `login_session` WHERE `session_token`='{$token[0]}'");
-                        unset($_SESSION['token']);
-                        setcookie("__session", "", time()-1800, "/");
-                        setcookie("_token", "", time()-1800, "/");
+                        $this->logout("force");
                         $this->info["errors"][] = "BAD_LOGIN_REQUEST";
 
                         //ページ再読み込み
-                        header("Location: ./{$_SERVER[PHP_SELF]}");
+                        header("Location: ./{$_SERVER["PHP_SELF"]}");
                     }
                 }
                 //切断
@@ -167,16 +169,28 @@ class account{
         }
     }
 
+    /** 
+     * @return array
+     * @comment ログインしてるかは ``isset(obj名->getstatus()["id"])`` で確認可能
+     * */
     public function getinfo(){
-        //ログインしてるかは isset(SAMPLE->getstatus()["id"]) で確認可能
         return $this->info;
     }
 
+    /**ログアウトする */
     public function logout($mode = "normal"){
-        if(isset($this->info["id"] || $mode == "force"){
+        if(isset($this->info["id"]) || $mode == "force"){
             $DB = new database($this->relPATH);
             if($DB->connect()){
-                $DB->execute("DELETE FROM `login_session` WHERE `session_token`='{$_SESSION[token]}'");
+                //DBから削除
+                $DB->execute("DELETE FROM `login_session` WHERE `session_token`='{$_SESSION["token"]}'");
+                //セッション吹っ飛ばす
+                unset($_SESSION['_token']);
+                //クッキー吹っ飛ばす
+                setcookie("__session", "", time()-1800, "/");
+                setcookie("_token", "", time()-1800, "/");
+                setcookie("_login", "no", 0, "/");
+
                 $DB->disconnect();
             }
         }

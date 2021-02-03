@@ -24,17 +24,18 @@ if(isset($_POST['account_id']) && isset($_POST['pass']) && isset($_POST['form_to
         $DB = new database("../");
         if($DB->connect()){
             //パスワードはハッシュ化したもので照合
-            $account_id = $_POST['account_id'];
+            $account_name = $_POST['account_id'];
             $pass = hash("sha512", $_POST['pass']);
             $auto_login = (int)(isset($_POST['auto_login']) && $_POST['auto_login'] == "on");
 
             //れっつら照合
-            if($DB->execute("SELECT * FROM `account` WHERE `name`='{$account_id}' AND `password`='{$pass}'")){
+            if($account_id = $DB->execute("SELECT `id` FROM `account` WHERE `name`='{$account_name}' AND `password`='{$pass}'")){
+                $account_id = (int)$account_id[0]['id'];
                 do{
                     $now = date("Y-m-d H:i:s", time());
                     $token = [rand_text(), rand_text()];
                     //セッションをDBに登録
-                }while(!$DM->execute("INSERT INTO `login_session` (`account_id`, `start_datetime`, `session_token`, `cookie_token`, `auto_login`) VALUES ('{$account_id}', '{$now}', '{$token[0]}', '{$token[1]}', {$auto_login})"));
+                }while(!$DB->execute("INSERT INTO `login_session` (`account_id`, `start_datetime`, `session_token`, `cookie_token`, `auto_login`) VALUES ('{$account_id}', '{$now}', '{$token[0]}', '{$token[1]}', {$auto_login})"));
 
                 //セッションとクッキーにそれぞれトークンを保存
                 $_SESSION['_token'] = $token[0];
