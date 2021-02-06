@@ -29,20 +29,23 @@ if(isset($_POST['account_id']) && isset($_POST['pass']) && isset($_POST['form_to
             $auto_login = (int)(isset($_POST['auto_login']) && $_POST['auto_login'] == "on");
 
             //れっつら照合
-            if($account_id = $DB->execute("SELECT `id` FROM `account` WHERE `name`='{$account_name}' AND `password`='{$pass}'")){
-                $account_id = (int)$account_id[0]['id'];
+            $sql = "SELECT `id` FROM `account` WHERE `name`=? AND `password`=?";
+            $stmt = $DB->getPDO()->prepare($sql);
+
+            if($stmt->execute([$account_name, $pass])){
+                $account_id = (int)$stmt->fetch(PDO::FETCH_ASSOC)["id"];
                 do{
-                    $now = date("Y-m-d H:i:s", time());
+                    $now = date("Y-m-d", time());
                     $token = [rand_text(), rand_text()];
                     //セッションをDBに登録
-                }while(!$DB->execute("INSERT INTO `login_session` (`account_id`, `start_datetime`, `session_token`, `cookie_token`, `auto_login`) VALUES ('{$account_id}', '{$now}', '{$token[0]}', '{$token[1]}', {$auto_login})"));
+                }while(!$DB->execute("INSERT INTO `login_session` (`account_id`, `start_date`, `session_token`, `cookie_token`, `auto_login`) VALUES ('{$account_id}', '{$now}', '{$token[0]}', '{$token[1]}', {$auto_login})"));
 
                 //セッションとクッキーにそれぞれトークンを保存
                 $_SESSION['_token'] = $token[0];
                 setcookie("_token", $token[1], time()+60*60*24*30, "/", "", false, true);
 
                 //転送
-                header("Location: ../");
+                header("Location: ../home/");
             }
             else{
                 echo "IDまたはパスワードが違います、もう一度ご確認ください";

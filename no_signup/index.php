@@ -28,6 +28,13 @@ if(isset($_POST["form_token"]) === isset($_SESSION["form_token"]) && !isset($acc
 
 <?php
     //アカウント作成処理
+    $new_account = new create_account("../");
+    do{
+        $name = "UNCLAIMED_" . rand_text();
+        $pass = rand_text();
+    }while(!$new_account->create($name, $pass));
+
+    header("Location: ../home/");
     
     endif;
 else:

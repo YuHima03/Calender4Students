@@ -1,11 +1,19 @@
 <?php
+
 //ヘッダー
-if($option == "header" || !isset($option)): ?>
+if($option == "header" || !isset($option)):
+
+
+$account_info = $inner_html["login_info"];
+
+?>
 
 <header>
     <h1>Calender 4 Students</h1>
-    <!--additional-->
-    <?=$inner_html?>
+    <!--account-->
+    <div>
+        <p>ようこそ<?=$account_info["name"]?></p>
+    </div>
 </header>
 
 <?php
@@ -16,8 +24,6 @@ elseif($option == "footer" || !isset($option)): ?>
     <div>
         <h4>FOOTER</h4>
     </div>
-    <!--additional-->
-    <?=$inner_html?>
 </footer>
 
 <?php endif; ?>

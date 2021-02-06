@@ -9,9 +9,7 @@ class page{
         "IMAGE" =>  "undecided"
     ];
     private $account = null;
-    private $account_info = [
-        "login" => false
-    ];
+    private $account_info = [];
     private $gen_opt = [
         "header"        =>  true,
         "header_add"    =>  [],
@@ -26,13 +24,12 @@ class page{
     ];
 
     function __construct($rPATHnum = 0){
-
         for($i = 1; $i <= $rPATHnum; $i++){
             $this->relPATH .= "../";
         }
 
         $this->account = new account($this->relPATH);
-        $this->account_info += $this->account->getinfo();
+        $this->account_info = $this->account->getinfo();
     }
 
     public function set_info($arr){
@@ -61,7 +58,7 @@ class page{
     /**
      * ページ生成
      * @param string $mode モード``(_ALL,head,body)`` _オプションはスラッシュの後に_
-     * @param string 
+     * @param string|array
      */
     public function gen_page($mode = "_ALL", $inner_html = null){
         $tmp = preg_split("/\//", $mode);
@@ -130,6 +127,7 @@ class page{
 
 class account{
     private $info = [
+        "login"     =>  false,
         "id"        =>  null,
         "name"      =>  null,
         "errors"    =>  []
@@ -144,18 +142,21 @@ class account{
             if($DB->connect()){
                 //ログイン情報をDBと照合
                 $token = [$_SESSION['_token'], $_COOKIE['_token']];
-                foreach($DB->execute("SELECT * FROM `login_session` WHERE `session_token`='{$token[0]}'") as $data){
+                foreach($DB->execute("SELECT * FROM `account`, `login_session` WHERE `account`.`id` = `login_session`.`account_id` AND `login_session`.`session_token`='{$token[0]}'") as $data){
                     if($data["cookie_token"] == $token[1]){
                         //認証完了
-                        setcookie("_login", "yes", 0, "/");
+                        $this->info["id"] = $data["id"];
+                        $this->info["name"] = $data["name"];
+                        $this->info["login"] = true;
                     }
                     else{
                         //不正ログイン？
                         $this->logout("force");
                         $this->info["errors"][] = "BAD_LOGIN_REQUEST";
+                        echo "ログアウトしました";
 
                         //ページ再読み込み
-                        header("Location: ./{$_SERVER["PHP_SELF"]}");
+                        //header("Location: ./");
                     }
                 }
                 //切断
@@ -179,20 +180,99 @@ class account{
     /**ログアウトする */
     public function logout($mode = "normal"){
         if(isset($this->info["id"]) || $mode == "force"){
+
             $DB = new database($this->relPATH);
             if($DB->connect()){
                 //DBから削除
-                $DB->execute("DELETE FROM `login_session` WHERE `session_token`='{$_SESSION["token"]}'");
+                $sql = "DELETE FROM `login_session` WHERE `session_token`=?";
+                $stmt = $DB->getPDO()->prepare($sql);
+                $stmt->execute([$_SESSION['_token']]);
+                unset($stmt);
+
                 //セッション吹っ飛ばす
                 unset($_SESSION['_token']);
                 //クッキー吹っ飛ばす
                 setcookie("__session", "", time()-1800, "/");
                 setcookie("_token", "", time()-1800, "/");
-                setcookie("_login", "no", 0, "/");
 
                 $DB->disconnect();
             }
         }
+    }
+}
+
+//////////////////////////////////////////////////
+//アカウント作成
+class create_account{
+    private $relPATH = "./";
+
+    function __construct($_relPATH){
+        $this->relPATH = $_relPATH;
+    }
+
+    /** 
+     * アカウント作成（ログイン）
+     * @param string $name アカウント名(他アカウントとの重複不可)
+     * @param string $pass パスワード(ハッシュ化してないやつ)※垢名との重複不可
+     * @param bool $login ログイン処理もするかどうか(true/false)
+     * */
+    public function create($name, $pass, $login = true){
+        $DB = new database($this->relPATH);
+        $pass = hash("sha512", $pass);
+        $info = [
+            "id"    =>  null,
+            "name"  =>  null
+        ];
+
+        //アカウント登録
+        if($DB->connect()){
+            $sql = "INSERT INTO `account` (`name`, `password`, `uuid`, `unclaimed`) VALUES (?, ?, ?, 1)";
+            $stmt = $DB->getPDO()->prepare($sql);
+            do{
+                $uuid = rand_text();
+                if($pass == $uuid){
+                    continue;
+                }
+                else{
+                    $arr = [$name, $pass, $uuid];
+                }
+            }while(!$stmt->execute($arr));
+
+            //ログイン処理
+            if($login){
+                //アカウントのIDを取得
+                $sql = "SELECT `id` FROM `account` WHERE `name`=? AND `password`=?";
+                $stmt = $DB->getPDO()->prepare($sql);
+                $stmt->execute([$name, $pass]);
+                $account_id = $stmt->fetch(PDO::FETCH_ASSOC)["id"];
+
+                //セッションに登録
+                $sql = "INSERT INTO `login_session` (`account_id`, `start_date`, `session_token`, `cookie_token`, `auto_login`) VALUES (?, ?, ?, ?, 1)";
+                $stmt = $DB->getPDO()->prepare($sql);
+                do{
+                    $start_date = date("Y-m-d", time());
+                    $session_token = rand_text();
+                    $cookie_token = rand_text();
+                    if($session_token == $cookie_token){
+                        continue;
+                    }
+                    else{
+                        $arr = [$account_id, $start_date, $session_token, $cookie_token];
+                    }
+                }while(!$stmt->execute($arr));
+
+                //クッキー&セッションに登録
+                $_SESSION['_token'] = $session_token;
+                setcookie("_token", $cookie_token, time()+60*60*24*30*6, "/", "", false, true); //セッションは半年保持
+            }
+
+            $DB->disconnect();
+        }
+        else{
+            return false;
+        }
+
+        return true;
     }
 }
 
@@ -265,6 +345,10 @@ class database{
         else{
             return false;
         }
+    }
+
+    public function getPDO(){
+        return $this->mysql;
     }
 }
 

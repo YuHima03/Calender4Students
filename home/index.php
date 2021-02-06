@@ -8,6 +8,11 @@ $page->set_info([
     "TITLE" =>  "ホーム"
 ]);
 
+if(!$page->get_account_info()["login"]){
+    //ログインしてない
+    header("Location: ../");
+}
+
 ?>
 
 <!DOCTYPE html>
@@ -15,7 +20,7 @@ $page->set_info([
 <?php $page->gen_page("head"); ?>
 <body>
 <!--header-->
-<?php $page->gen_page("body/header"); ?>
+<?php $page->gen_page("body/header", ["login_info" => $page->get_account_info()]); ?>
 <!--main-->
 <main>
     <h1>HOME</h1>
