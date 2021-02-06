@@ -2,7 +2,7 @@
 **学生の為の機能が揃うカレンダー**を作ってます（現在開発中）<br />
 Webアプリ（的なやつ）なのでアプリのインストールが不要です<br />
 また、それぞれの端末から同じカレンダーを管理することも可能になる予定です
-[https://pbs.twimg.com/media/EsqoFtpWMAQUwEk?format=jpg&name=large]
+![theme_img](https://pbs.twimg.com/media/EsqoFtpWMAQUwEk?format=jpg&name=large)
 
 ## 進捗状況
 ###### 完成時期はまだ未定です
