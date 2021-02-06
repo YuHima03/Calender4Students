@@ -58,6 +58,11 @@ class page{
         return true;
     }
 
+    /**
+     * ページ生成
+     * @param string $mode モード``(_ALL,head,body)`` _オプションはスラッシュの後に_
+     * @param string 
+     */
     public function gen_page($mode = "_ALL", $inner_html = null){
         $tmp = preg_split("/\//", $mode);
         $mode = $tmp[0];
@@ -67,12 +72,6 @@ class page{
 
         if(in_array($mode, $mode_list, true)){
             include "{$this->relPATH}include/{$mode}.php";
-        }
-        //auto_setting
-        else if($mode === "_AUTO" && gettype($mode) === "array"){
-            foreach($data as $key => $inner_html){
-                $this->gen_page($key, $value);
-            }
         }
         //print_all
         else if($mode === "_ALL"){
