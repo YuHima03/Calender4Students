@@ -11,7 +11,7 @@ if(isset($_POST['name'])){
         $stmt = $DB->getPDO()->prepare($sql);
         $stmt->execute([$name]);
         
-        echo (!$stmt->rowCount()) ? "true" : "false";
+        echo ($stmt->rowCount() == 0) ? "true" : "false";
 
         $DB->disconnect();
     }
