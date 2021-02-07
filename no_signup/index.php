@@ -19,7 +19,7 @@ if(isset($_POST["form_token"]) === isset($_SESSION["form_token"]) && !isset($acc
 <head>
     <title>アカウント無しで利用</title>
 </head>
-<body>
+<body id="_no_signup">
     <p>ご利用のための準備をしています...</p>
     <p>少々お待ちください。</p>
 </body>

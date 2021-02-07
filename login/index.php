@@ -69,7 +69,7 @@ $_SESSION['form_token'] = $form_token;
 <!DOCTYPE html>
 <html lang="ja">
 <?php $page->gen_page("head", $page->add_css(["style/main.css"]) . $page->add_js(["js/main.js", "js/login.js"])); ?>
-<body>
+<body id="_login">
     <main>
         <div id="container">
             <div class="title">

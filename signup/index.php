@@ -1,0 +1,52 @@
+<?php
+
+include_once "../libs/C4S_main.php";
+
+$page = new page(1);
+
+if($page->get_account_info()["login"]){
+    header("Location: ../home/");
+    exit();
+}
+else{
+    if(isset($_POST["form_token"]) && isset($_POST["name"]) && isset($_POST["pass"])){
+        $page->set_info([
+            "TITLE" =>  "処理中..."
+        ]);
+        exit;
+    }
+    else{
+        $page->set_info([
+            "TITLE" =>  "アカウントの作成"
+        ]);
+
+        $form_token = rand_text();
+        $_SESSION["form_token"] = $form_token;
+    }
+}
+
+?>
+
+<!DOCTYPE html>
+<html lang="ja">
+<?php $page->gen_page("head"); ?>
+<body id="_signup">
+    <main>
+        <div>
+            <h1>アカウントの作成</h1>
+        </div>
+        <div id="create_form">
+            <form id="create_account" action="" method="POST" >
+                <p>ID<span>※4文字以上で、英数字(A~Z,a~z,0~9)と'_'(アンダーバー)が利用可能です</span></p>
+                <input type="text" name="_C_NAME" required />
+                <p>パスワード<span>※6文字以上で、英文字(A~Z,a~z)と数字(0~9)を共に含んでいる必要があります</span></p>
+                <input type="password" name="_C_PASS" required />
+                <p>パスワード(確認)<span>※クリップボードからの貼り付けは出来ません</span></p>
+                <input type="password" name="_C_PASS_CHK" />
+                <input type="hidden" name="form_token" value="<?=$form_token?>" />
+                <input type="submit" value="作成" />
+            </form>
+        </div>
+    </main>
+</body>
+</html>
