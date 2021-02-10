@@ -130,7 +130,8 @@ class account{
         "login"     =>  false,
         "id"        =>  null,
         "name"      =>  null,
-        "errors"    =>  []
+        "errors"    =>  [],
+        "unclaimed" =>  false
     ];
     private $relPATH = "./";
 
@@ -142,23 +143,29 @@ class account{
             if($DB->connect()){
                 //ログイン情報をDBと照合
                 $token = [$_SESSION['_token'], $_COOKIE['_token']];
-                foreach($DB->execute("SELECT * FROM `account`, `login_session` WHERE `account`.`id` = `login_session`.`account_id` AND `login_session`.`session_token`='{$token[0]}'") as $data){
-                    if($data["cookie_token"] == $token[1]){
-                        //認証完了
-                        $this->info["id"] = $data["id"];
-                        $this->info["name"] = $data["name"];
-                        $this->info["login"] = true;
-                    }
-                    else{
-                        //不正ログイン？
-                        $this->logout("force");
-                        $this->info["errors"][] = "BAD_LOGIN_REQUEST";
-                        echo "ログアウトしました";
 
-                        //ページ再読み込み
-                        //header("Location: ./");
-                    }
+                $sql = "SELECT * FROM `account`, `login_session` WHERE `account`.`id` = `login_session`.`account_id` AND `login_session`.`session_token`=?";
+                $stmt = $DB->getPDO()->prepare($sql);
+                $stmt->execute([$token[0]]);
+                $data = $stmt->fetch(PDO::FETCH_ASSOC);
+                
+                if($data["cookie_token"] == $token[1]){
+                    //認証完了
+                    $this->info["id"] = $data["id"];
+                    $this->info["unclaimed"] = (bool)$data["unclaimed"];
+                    $this->info["name"] = ($this->info["unclaimed"]) ? "Guest" : $data["name"];
+                    $this->info["login"] = true;
                 }
+                else{
+                    //不正ログイン？
+                    $this->logout("force");
+                    $this->info["errors"][] = "BAD_LOGIN_REQUEST";
+                    echo "ログアウトしました";
+
+                    //ページ再読み込み
+                    header("Location: ./");
+                }
+
                 //切断
                 $DB->disconnect();
             }
@@ -188,6 +195,13 @@ class account{
                 $stmt = $DB->getPDO()->prepare($sql);
                 $stmt->execute([$_SESSION['_token']]);
                 unset($stmt);
+
+                if(isset($this->info["id"]) && $this->info["unclaimed"]){
+                    //仮登録アカウントはアカウント情報もDBから削除
+                    $sql = "DELETE FROM `account` WHERE `id`=?";
+                    $stmt = $DB->getPDO()->prepare($sql);
+                    $stmt->execute([$this->info["id"]]);
+                }
 
                 //セッション吹っ飛ばす
                 unset($_SESSION['_token']);

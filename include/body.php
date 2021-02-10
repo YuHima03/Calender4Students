@@ -12,7 +12,8 @@ $account_info = $inner_html["login_info"];
     <h1>Calender 4 Students</h1>
     <!--account-->
     <div>
-        <p>ようこそ<?=$account_info["name"]?></p>
+        <p>アカウントID：<?=$account_info["name"]?></p>
+        <p><a href="../logout">ログアウト</a></p>
     </div>
 </header>
 
