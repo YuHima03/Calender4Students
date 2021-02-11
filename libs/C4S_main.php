@@ -58,9 +58,9 @@ class page{
     /**
      * ページ生成
      * @param string $mode モード``(_ALL,head,body)`` _オプションはスラッシュの後に_
-     * @param string|array
+     * @param string|array $inner_html
      */
-    public function gen_page($mode = "_ALL", $inner_html = null){
+    public function gen_page(string $mode = "_ALL", $inner_html = null) :bool {
         $tmp = preg_split("/\//", $mode);
         $mode = $tmp[0];
         $option = (isset($tmp[1])) ? $tmp[1] : null;
@@ -81,7 +81,7 @@ class page{
     }
 
     //add_css
-    public function add_css($href){
+    public function add_css($href) {
         if(is_array($href)){
             $ret_data = "";
             foreach($href as $v){
@@ -98,7 +98,7 @@ class page{
     }
 
     //add_js
-    public function add_js($href){
+    public function add_js($href) {
         if(is_array($href)){
             $ret_data = "";
             foreach($href as $v){
@@ -112,11 +112,13 @@ class page{
         }
     }
 
-    /** jsに変数を渡す
-     * @param array $data 
-     * @return string
-    */
-    public function put_data($data, $force = false){
+    //SW登録
+    public function sw_reg() : string{
+        return $this->add_js("app/app.js");
+    }
+
+    /** jsに変数を渡す */
+    public function put_data(array $data, bool $force = false) :string{
         if(!$this->gen_flag["put_PHP_data"] || $force){
             $ret = "<script>PHP_DATA = " . json_encode($data) . ";</script>";
             $this->gen_flag["put_PHP_data"] = true;

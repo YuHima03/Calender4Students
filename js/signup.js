@@ -86,7 +86,7 @@ $(function() {
             err_msg("wrong_format_msg", "使用できない文字が含まれています、使用できるのは英数字(A~Z,a~z,0~9)とアンダーバー\"_\"のみです", FORM, FORM._NAME);
         }
     });
-
+    
     //パスワード
     FORM._PASS.addEventListener("input", (e) => {
         let warn = {

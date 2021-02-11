@@ -77,7 +77,7 @@ $_SESSION['form_token'] = $form_token;
             </div>
             <div>
                 <form action="" method="POST">
-                    <p>ID</p>
+                    <p>アカウント名</p>
                     <input type="text" name="account_id" value="<?=(isset($_POST['account_id']))?"{$_POST['account_id']}":"";?>" />
                     <p>パスワード</p>
                     <input type="password" name="pass" />
