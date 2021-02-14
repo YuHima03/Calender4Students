@@ -65,6 +65,172 @@ function rand_text(len = 64){
     return ret;
 }
 
+/**
+ * Dateオブジェクトを連想配列にする
+ * @param {Object} DateObject 
+ * @param {Boolean} UTC UTC時間を返す
+ * @param {Boolean} noMonthZero //月を1~12にする
+ * @returns {Object} 連想配列
+ */
+function dateToAssociativeArray(DateObject = undefined, UTC = false, noMonthZero = true){
+    let now = (isset(DateObject)) ? DateObject : new Date();
+    return (UTC) ? {
+        year            :   now.getUTCFullYear(),
+        month           :   now.getUTCMonth() + Number(noMonthZero),
+        date            :   now.getUTCDate(),
+        day             :   now.getUTCDay(),
+        hours           :   now.getUTCHours(),
+        minutes         :   now.getUTCMinutes(),
+        seconds         :   now.getUTCSeconds(),
+        milliseconds    :   now.getUTCMilliseconds()
+    }
+    : {
+        year            :   now.getFullYear(),
+        month           :   now.getMonth() + Number(noMonthZero),
+        date            :   now.getDate(),
+        day             :   now.getDay(),
+        hours           :   now.getHours(),
+        minutes         :   now.getMinutes(),
+        seconds         :   now.getSeconds(),
+        milliseconds    :   now.getMilliseconds()
+    };
+}
+
+/**
+ * Dateオブジェクトで取得した時間を文字列にする
+ * @param {Object} DatetimeObj Dateオブジェクト
+ * @param {String} format 書式(PHPとおんなじ)
+ * @param {Boolean} UTC UTC時間を使う
+ * @returns {String}
+ */
+function dateToString(DateObject = undefined, format = "", UTC = false){
+    let now = (isset(DateObject)) ? DateObject : new Date();
+    let arr = dateToAssociativeArray(now, UTC, true);
+
+    //フルスペルの曜日
+    function getFullSpellDay(day_num){
+        switch(day_num){
+            case(0):    return "Sunday";
+            case(1):    return "Monday";
+            case(2):    return "Tuesday";
+            case(3):    return "Wednesday";
+            case(4):    return "Thursday";
+            case(5):    return "Friday";
+            case(6):    return "Saturday";
+        }
+    }
+    //フルスペルの月
+    function getFullSpellMonth(month_num){ //1~12
+        switch(month_num){
+            case(1):    return "January";
+            case(2):    return "February";
+            case(3):    return "March";
+            case(4):    return "April";
+            case(5):    return "May";
+            case(6):    return "June";
+            case(7):    return "July";
+            case(8):    return "August";
+            case(9):    return "September";
+            case(10):   return "October";
+            case(11):   return "November";
+            case(12):   return "December";
+        }
+    }
+    
+    let result = format.replace(/Y/g, arr.year) //年(4桁)
+    .replace(/y/g, str_split(String(arr.year), -2, -1)) //年(2桁)
+    .replace(/F/g, getFullSpellMonth(arr.month)) //月(フルスペル)
+    .replace(/M/g, str_split(getFullSpellMonth(arr.month), 0, 2)) //月(3文字)
+    .replace(/n/g, arr.month) //月(1~2桁)
+    .replace(/m/g, ((!Math.floor(arr.month / 10)) ? "0" : "") + String(arr.month)) //月(2桁)
+    .replace(/w/g, arr.day) //曜日(0[日]~6[土])
+    .replace(/l/g, getFullSpellDay(arr.day)) //曜日(フルスペル)
+    .replace(/D/g, str_split(getFullSpellDay(arr.day), 0, 2))//曜日(3文字)
+    .replace(/N/g, (arr.day > 0) ? arr.day : 7) //ISO-8601形式の曜日(1[月]~7[日])
+    .replace(/(?<=j)S/g, () => { //日(1st,2nd,3rd,4th...)
+        switch(arr.date % 10){
+            case(1):    return "st";
+            case(2):    return "nd";
+            case(3):    return "rd";
+            default:    return "th";
+        }
+    })
+    .replace(/j/g, arr.date) //日(1~2桁)
+    .replace(/d/g, ((!Math.floor(arr.date / 10)) ? "0" : "") + String(arr.date)) //日(2桁)
+    .replace(/a/g, (arr.hours < 12) ? "am" : "pm") //午前or午後(小文字)
+    .replace(/A/g, (arr.hours < 12) ? "AM" : "PM") //午前or午後(大文字)
+    .replace(/g/g, arr.hours - ((arr.hours <= 12) ? 0 : 12)) //時(12時間単位)(1~2桁)
+    .replace(/h/g, ((valueBetween(arr.hours, 10, 12) || valueBetween(arr.hours, 22, 24)) ? "" : "0") + String(arr.hours - ((arr.hours <= 12) ? 0 : 12))) //時(12時間単位)(2桁)
+    .replace(/G/g, arr.hours) //時(24時間単位)(1~2桁)
+    .replace(/H/g, ((!Math.floor(arr.hours / 10)) ? "0" : "") + String(arr.hours)) //時(24時間単位)(2桁)
+    .replace(/i/g, ((!Math.floor(arr.minutes / 10)) ? "0" : "") + String(arr.minutes)) //分(2桁)
+    .replace(/s/g, ((!Math.floor(arr.seconds / 10)) ? "0" : "") + String(arr.seconds)) //秒(2桁)
+    .replace(/v|u/g, arr.milliseconds); //ミリ秒
+
+    return result;
+}
+
+/**
+ * UTC時間からホストシステム側の時間に変換
+ * @param {Object} DateObject Dateオブジェクト
+ * @param {Number} timezoneOffset UTC時間からの差(UTC+9だったら9)
+ * @returns {Object} Dateオブジェクト
+ */
+function UTCToClientTimezone(DateObject = undefined, timezoneOffset = undefined){
+    let now = (isset(DateObject)) ? DateObject : new Date();
+    let tzOffset = (isset(timezoneOffset)) ? timezoneOffset : -now.getTimezoneOffset();
+
+    now.setUTCMinutes(now.getUTCMinutes() + tzOffset);
+
+    return now;
+}
+
+/**
+ * 文字切り出し
+ * @param {string} str
+ * @param {number} from
+ * @param {number} to
+ * @returns {string}
+ * */
+function str_split(str, from, to){
+    let len = str.length;
+    let result = "";
+
+    from += (from < 0) ? len : 0;
+    to += (to < 0) ? len : 0;
+
+    if(from <= to){
+        for(let i = from; i <= to; i++){
+            result += str.charAt(i);
+        }
+    }
+    else{
+        for(let i = from; i >= to; i--){
+            result += str.charAt(i);
+        }
+    }
+
+    return result;
+}
+
+/**
+ * 値がfromとtoの間にあるかを検証
+ * @param {Any} value 
+ * @param {Any} from 
+ * @param {Any} to 
+ * @param {Boolean} [includeEqual=true]
+ * @return {Boolean}
+ */
+function valueBetween(value, from, to, includeEqual = true){
+    if(from < value && value < to){
+        return true;
+    }
+    else if (includeEqual && (value == from || value == to)){
+        return true;
+    }
+    return false;
+}
+
 /// DOMツリー読み込み後実行 ///
 $(function(){
     //a要素のセキュリティ対策
