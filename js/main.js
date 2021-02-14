@@ -139,14 +139,18 @@ function dateToString(DateObject = undefined, format = "", UTC = false){
     
     let result = format.replace(/Y/g, arr.year) //年(4桁)
     .replace(/y/g, str_split(String(arr.year), -2, -1)) //年(2桁)
-    .replace(/F/g, getFullSpellMonth(arr.month)) //月(フルスペル)
-    .replace(/M/g, str_split(getFullSpellMonth(arr.month), 0, 2)) //月(3文字)
     .replace(/n/g, arr.month) //月(1~2桁)
     .replace(/m/g, ((!Math.floor(arr.month / 10)) ? "0" : "") + String(arr.month)) //月(2桁)
     .replace(/w/g, arr.day) //曜日(0[日]~6[土])
-    .replace(/l/g, getFullSpellDay(arr.day)) //曜日(フルスペル)
-    .replace(/D/g, str_split(getFullSpellDay(arr.day), 0, 2))//曜日(3文字)
     .replace(/N/g, (arr.day > 0) ? arr.day : 7) //ISO-8601形式の曜日(1[月]~7[日])
+    .replace(/d/g, ((!Math.floor(arr.date / 10)) ? "0" : "") + String(arr.date)) //日(2桁)
+    .replace(/g/g, arr.hours - ((arr.hours <= 12) ? 0 : 12)) //時(12時間単位)(1~2桁)
+    .replace(/h/g, ((valueBetween(arr.hours, 10, 12) || valueBetween(arr.hours, 22, 24)) ? "" : "0") + String(arr.hours - ((arr.hours <= 12) ? 0 : 12))) //時(12時間単位)(2桁)
+    .replace(/G/g, arr.hours) //時(24時間単位)(1~2桁)
+    .replace(/H/g, ((!Math.floor(arr.hours / 10)) ? "0" : "") + String(arr.hours)) //時(24時間単位)(2桁)
+    .replace(/i/g, ((!Math.floor(arr.minutes / 10)) ? "0" : "") + String(arr.minutes)) //分(2桁)
+    .replace(/s/g, ((!Math.floor(arr.seconds / 10)) ? "0" : "") + String(arr.seconds)) //秒(2桁)
+    .replace(/v|u/g, arr.milliseconds) //ミリ秒
     .replace(/(?<=j)S/g, () => { //日(1st,2nd,3rd,4th...)
         switch(arr.date % 10){
             case(1):    return "st";
@@ -156,18 +160,41 @@ function dateToString(DateObject = undefined, format = "", UTC = false){
         }
     })
     .replace(/j/g, arr.date) //日(1~2桁)
-    .replace(/d/g, ((!Math.floor(arr.date / 10)) ? "0" : "") + String(arr.date)) //日(2桁)
     .replace(/a/g, (arr.hours < 12) ? "am" : "pm") //午前or午後(小文字)
     .replace(/A/g, (arr.hours < 12) ? "AM" : "PM") //午前or午後(大文字)
-    .replace(/g/g, arr.hours - ((arr.hours <= 12) ? 0 : 12)) //時(12時間単位)(1~2桁)
-    .replace(/h/g, ((valueBetween(arr.hours, 10, 12) || valueBetween(arr.hours, 22, 24)) ? "" : "0") + String(arr.hours - ((arr.hours <= 12) ? 0 : 12))) //時(12時間単位)(2桁)
-    .replace(/G/g, arr.hours) //時(24時間単位)(1~2桁)
-    .replace(/H/g, ((!Math.floor(arr.hours / 10)) ? "0" : "") + String(arr.hours)) //時(24時間単位)(2桁)
-    .replace(/i/g, ((!Math.floor(arr.minutes / 10)) ? "0" : "") + String(arr.minutes)) //分(2桁)
-    .replace(/s/g, ((!Math.floor(arr.seconds / 10)) ? "0" : "") + String(arr.seconds)) //秒(2桁)
-    .replace(/v|u/g, arr.milliseconds); //ミリ秒
+    .replace(/F/g, getFullSpellMonth(arr.month)) //月(フルスペル)
+    .replace(/M/g, str_split(getFullSpellMonth(arr.month), 0, 2)) //月(3文字)
+    .replace(/l/g, getFullSpellDay(arr.day)) //曜日(フルスペル)
+    .replace(/D/g, str_split(getFullSpellDay(arr.day), 0, 2))//曜日(3文字)
 
     return result;
+}
+
+/**
+ * その月の初日の曜日を取得
+ * @param {Number} month 
+ * @param {Number} year 
+ */
+function getFirstDay(month, year){
+    let date = new Date();
+    date.setFullYear(year);
+    date.setMonth(month);
+    date.setDate(1);
+    return date.getDay();
+}
+
+/**
+ * その月の最終日の日付を取得
+ * @param {Number} month 
+ * @param {Number} year 
+ * @param {Boolean} day 日付じゃなくて曜日を取得
+ */
+function getFinalDate(month, year, day = false){
+    let date = new Date();
+    date.setFullYear(year);
+    date.setMonth(month);
+    date.setDate(0);
+    return (day) ? date.getDay() : date.getDate();
 }
 
 /**
