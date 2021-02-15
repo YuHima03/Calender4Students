@@ -172,28 +172,22 @@ function dateToString(DateObject = undefined, format = "", UTC = false){
 
 /**
  * その月の初日の曜日を取得
- * @param {Number} month 
  * @param {Number} year 
+ * @param {Number} month 
  */
-function getFirstDay(month, year){
-    let date = new Date();
-    date.setFullYear(year);
-    date.setMonth(month);
-    date.setDate(1);
+function getFirstDay(year, month){
+    let date = new Date(year, month-1, 1);
     return date.getDay();
 }
 
 /**
  * その月の最終日の日付を取得
- * @param {Number} month 
  * @param {Number} year 
+ * @param {Number} month 
  * @param {Boolean} day 日付じゃなくて曜日を取得
  */
-function getFinalDate(month, year, day = false){
-    let date = new Date();
-    date.setFullYear(year);
-    date.setMonth(month);
-    date.setDate(0);
+function getFinalDate(year, month, day = false){
+    let date = new Date(year, month, 0);
     return (day) ? date.getDay() : date.getDate();
 }
 
