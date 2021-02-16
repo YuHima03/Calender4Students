@@ -1,0 +1,35 @@
+/*/// Home CSS ///*/
+
+body {
+    margin: 0;
+}
+
+#calender {
+    width: 90%;
+    margin: 0 auto;
+}
+
+    #calender > div.year {
+        width: 100%;
+    }
+
+        #calender > div.year > table.month {
+            width: 100%;
+        }
+
+            #calender > div.year > table.month > tr.week {
+
+            }
+
+                #calender > div.year > table.month > tr.week > td.date {
+                    border: solid 1px gainsboro;
+                }
+
+                    #calender > div.year > table.month > tr.week > td.date > div:first-child {
+                        color: #2f2f2f;
+                    }
+
+                    #calender > div.year > table.month > tr.week > td.date.out_of_month > div:first-child {
+                        color: darkgray;
+                        /*opacity: 0.4;*/
+                    }
