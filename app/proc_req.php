@@ -15,7 +15,7 @@ include_once "../libs/C4S_main.php";
  * 要求は全てPOSTでの受け取り
  */
 $post_data = [
-    "_ACCOUNT_ID"   =>  null,   //アカウントID(照合用)      
+    "_TOKEN"   =>  null,   //トークン(照合用)
     "_MODE"         =>  null,   //モード
     "_TIMESTAMP"    =>  null,   //リクエスト送信時間
     "_DATETIME"     =>  null,   //対象日
@@ -36,7 +36,6 @@ $account = new account("../");
 $DB = new database("../");
 //ログイン済み&データベース接続完了&アカウントID一致
 if($account->getinfo()["login"] && $DB->connect() && $account->getinfo()["id"] = $post_data["_ACCOUNT_ID"]){
-    
     //操作成功
     echo "true";
 }

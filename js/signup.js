@@ -62,7 +62,9 @@ $(function() {
             xhr.onreadystatechange = (ev) => {
                 if(xhr.readyState == 4 && xhr.status == 200){
                     //通信成功
-                    if(xhr.responseText == "false"){
+                    let xhr_result = JSON.parse(xhr.responseText);
+                    console.info();
+                    if(!xhr_result[0]){
                         //既に使われてる
                         _NAME.classList.add("err");
                         err_msg("used_name_msg", "このIDは既に使用されています", FORM, FORM._NAME, false);
@@ -162,11 +164,11 @@ $(function() {
             }
             //書式違う
             if(warn.wrong_pass_format){
-                msg_elem_list.add("利用できない文字が使用されています、使用できるのは英数字(A~Z,a~z,0~9)と記号です")
+                msg_elem_list.add("利用できない文字が使用されています、使用できるのは英数字(A~Z,a~z,0~9)と記号です");
             }
             //英文字と数字の両方を含んでない
             if(warn.ABC_and_num){
-                msg_elem_list.add("英文字と数字の両方をパスワードに含めてください")
+                msg_elem_list.add("英文字と数字の両方を1文字以上パスワードに含めてください");
             }
 
             //リストを親要素にぶち込む

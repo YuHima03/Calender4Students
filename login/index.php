@@ -6,7 +6,7 @@ $page = new page(1);
 
 if($page->get_account_info()["login"]){
     //ログイン済みの場合は転送
-    header("Location: /home/");
+    header("Location: ../home/");
     exit();
 }
 

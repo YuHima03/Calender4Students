@@ -252,6 +252,31 @@ function valueBetween(value, from, to, includeEqual = true){
     return false;
 }
 
+/**
+ * Element の中の全要素削除
+ * @param {HTMLElement} Element Target Element (Parent)
+ */
+function removeAllChildElements(Element){
+    while(Element.firstChild){
+        Element.removeChild(Element.firstChild);
+    }
+
+    return !isset(Element.firstChild);
+}
+
+/**
+ * ```a≡k (mod b)```の```k(余り)```を返す(正の数)
+ * @param {Number} a 
+ * @param {Number} b 
+ */
+function mod(a, b){
+    return (
+        (a % b >= 0)
+        ? (a % b)
+        : (a % b + b)
+    );
+}
+
 /// DOMツリー読み込み後実行 ///
 $(function(){
     //a要素のセキュリティ対策

@@ -130,7 +130,7 @@ class page{
 class account{
     private $info = [
         "login"     =>  false,
-        "id"        =>  null,
+        "uuid"        =>  null,
         "name"      =>  null,
         "errors"    =>  [],
         "unclaimed" =>  false
@@ -146,14 +146,14 @@ class account{
                 //ログイン情報をDBと照合
                 $token = [$_SESSION['_token'], $_COOKIE['_token']];
 
-                $sql = "SELECT * FROM `account`, `login_session` WHERE `account`.`id` = `login_session`.`account_id` AND `login_session`.`session_token`=?";
+                $sql = "SELECT * FROM `account`, `login_session` WHERE `account`.`uuid` = `login_session`.`uuid` AND `login_session`.`session_token`=?";
                 $stmt = $DB->getPDO()->prepare($sql);
                 $stmt->execute([$token[0]]);
                 $data = $stmt->fetch(PDO::FETCH_ASSOC);
                 
                 if($data["cookie_token"] == $token[1]){
                     //認証完了
-                    $this->info["id"] = $data["id"];
+                    $this->info["uuid"] = $data["uuid"];
                     $this->info["unclaimed"] = (bool)$data["unclaimed"];
                     $this->info["name"] = ($this->info["unclaimed"]) ? "Guest" : $data["name"];
                     $this->info["login"] = true;
@@ -180,7 +180,7 @@ class account{
 
     /** 
      * @return array
-     * @comment ログインしてるかは ``isset(obj名->getstatus()["id"])`` で確認可能
+     * @comment ログインしてるかは ``isset(obj名->getstatus()["uuid"])`` で確認可能
      * */
     public function getinfo(){
         return $this->info;
@@ -188,7 +188,7 @@ class account{
 
     /**ログアウトする */
     public function logout($mode = "normal"){
-        if(isset($this->info["id"]) || $mode == "force"){
+        if(isset($this->info["uuid"]) || $mode == "force"){
 
             $DB = new database($this->relPATH);
             if($DB->connect()){
@@ -198,11 +198,11 @@ class account{
                 $stmt->execute([$_SESSION['_token']]);
                 unset($stmt);
 
-                if(isset($this->info["id"]) && $this->info["unclaimed"]){
+                if(isset($this->info["uuid"]) && $this->info["unclaimed"]){
                     //仮登録アカウントはアカウント情報もDBから削除
-                    $sql = "DELETE FROM `account` WHERE `id`=?";
+                    $sql = "DELETE FROM `account` WHERE `uuid`=?";
                     $stmt = $DB->getPDO()->prepare($sql);
-                    $stmt->execute([$this->info["id"]]);
+                    $stmt->execute([$this->info["uuid"]]);
                 }
 
                 //セッション吹っ飛ばす
@@ -242,28 +242,28 @@ class create_account{
 
         //アカウント登録
         if($DB->connect()){
-            $sql = "INSERT INTO `account` (`name`, `password`, `uuid`, `unclaimed`) VALUES (?, ?, ?, 1)";
+            $sql = "INSERT INTO `account` (`uuid`, `name`, `password`, `unclaimed`) VALUES (?, ?, ?, 1)";
             $stmt = $DB->getPDO()->prepare($sql);
             do{
-                $uuid = rand_text();
+                $uuid = genUUID();
                 if($pass == $uuid){
                     continue;
                 }
                 else{
-                    $arr = [$name, $pass, $uuid];
+                    $arr = [$uuid, $name, $pass];
                 }
             }while(!$stmt->execute($arr));
 
             //ログイン処理
             if($login){
                 //アカウントのIDを取得
-                $sql = "SELECT `id` FROM `account` WHERE `name`=? AND `password`=?";
+                $sql = "SELECT `uuid` FROM `account` WHERE `name`=? AND `password`=?";
                 $stmt = $DB->getPDO()->prepare($sql);
                 $stmt->execute([$name, $pass]);
-                $account_id = $stmt->fetch(PDO::FETCH_ASSOC)["id"];
+                $uuid = $stmt->fetch(PDO::FETCH_ASSOC)["uuid"];
 
                 //セッションに登録
-                $sql = "INSERT INTO `login_session` (`account_id`, `start_date`, `session_token`, `cookie_token`, `auto_login`) VALUES (?, ?, ?, ?, 1)";
+                $sql = "INSERT INTO `login_session` (`uuid`, `start_date`, `session_token`, `cookie_token`, `auto_login`) VALUES (?, ?, ?, ?, 1)";
                 $stmt = $DB->getPDO()->prepare($sql);
                 do{
                     $start_date = date("Y-m-d", time());
@@ -273,7 +273,7 @@ class create_account{
                         continue;
                     }
                     else{
-                        $arr = [$account_id, $start_date, $session_token, $cookie_token];
+                        $arr = [$uuid, $start_date, $session_token, $cookie_token];
                     }
                 }while(!$stmt->execute($arr));
 
@@ -373,6 +373,21 @@ class database{
 function rand_text($len = 128, $mode = "sha256"){
     $rand_b = openssl_random_pseudo_bytes($len);
     return ($mode == "none") ? bin2hex($rand_b) : hash($mode, $rand_b);
+}
+
+//////////////////////////////////////////////////
+/**
+ * UUIDを生成 (version4)
+ * @return string
+ */
+function genUUID(){
+    //128バイトの乱数生成 (バージョン等指定するために論理積を取る)
+    //RRRRRRRR-RRRR-4RRR-rRRR-RRRRRRRRRRRR -> (hex)FFFFFFFF-FFFF-4FFF-rFFF-FFFFFFFFFFFF (r=8,9,A,B)
+    $binText_OR  = hex2bin('00000000'.'0000'.'4000'.'8000'.'000000000000');
+    $binText_AND = hex2bin('FFFFFFFF'.'FFFF'.'4FFF'.'BFFF'.'FFFFFFFFFFFF');
+    $uuidStr     = bin2hex((random_bytes(16) | $binText_OR) & $binText_AND);
+
+    return substr($uuidStr, 0, 8) . '-' . substr($uuidStr, 8, 4) . '-' . substr($uuidStr, 12, 4) . '-' . substr($uuidStr, 16, 4) . '-' . substr($uuidStr, 20);
 }
 
 ?>

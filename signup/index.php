@@ -9,10 +9,29 @@ if($page->get_account_info()["login"]){
     exit();
 }
 else{
-    if(isset($_POST["form_token"]) && isset($_POST["name"]) && isset($_POST["pass"])){
+    if(isset($_POST["_TOKEN"]) && isset($_POST["_NAME"]) && isset($_POST["_PASS"])){
         $page->set_info([
             "TITLE" =>  "処理中..."
         ]);
+
+        $DB = new database("../");
+        if($DB->connect()){
+            $args = [];
+            do{
+                $sql = "INSERT INTO `account` (`uuid`, `name`, `pass`, `unclaimed`) VALUES (?, ?, ?, 0)";
+                $stmt = $DB->getPDO()->prepare($sql);
+                $args = [genUUID(), $_POST["_NAME"], hash("sha512", $_POST["_PASS"])];
+            }while($stmt->execute($args));
+
+            $DB->disconnect();
+
+            var_dump($args);
+        }
+        else{
+            exit("DATABASE_CONNECTION_ERROR");
+        }
+
+        //header("Location: ../home/");
         exit;
     }
     else{
@@ -43,7 +62,7 @@ else{
                 <input type="password" name="_PASS" required />
                 <p>パスワード(確認)<span>※クリップボードからの貼り付けは出来ません</span></p>
                 <input type="password" name="_PASS_CHK" onpaste="return false;" required />
-                <input type="hidden" name="form_token" value="<?=$form_token?>" />
+                <input type="hidden" name="_TOKEN" value="<?=$form_token?>" />
                 <input type="submit" value="作成" />
             </form>
         </div>
