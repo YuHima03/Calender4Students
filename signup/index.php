@@ -14,24 +14,21 @@ else{
             "TITLE" =>  "処理中..."
         ]);
 
+        $name = $_POST["_NAME"];
+        $pass = $_POST["_PASS"];
+
         $DB = new database("../");
         if($DB->connect()){
-            $args = [];
-            do{
-                $sql = "INSERT INTO `account` (`uuid`, `name`, `pass`, `unclaimed`) VALUES (?, ?, ?, 0)";
-                $stmt = $DB->getPDO()->prepare($sql);
-                $args = [genUUID(), $_POST["_NAME"], hash("sha512", $_POST["_PASS"])];
-            }while($stmt->execute($args));
+            $accountCreation = new create_account("../");
+            $accountCreation->create($name, $pass, false, true);
 
             $DB->disconnect();
-
-            var_dump($args);
         }
         else{
             exit("DATABASE_CONNECTION_ERROR");
         }
 
-        //header("Location: ../home/");
+        header("Location: ../home/");
         exit;
     }
     else{

@@ -186,7 +186,10 @@ class account{
         return $this->info;
     }
 
-    /**ログアウトする */
+    /**
+     * ログアウトする
+     * @param string $mode モード("force"で強制ログアウト)
+     */
     public function logout($mode = "normal"){
         if(isset($this->info["uuid"]) || $mode == "force"){
 
@@ -230,19 +233,16 @@ class create_account{
      * アカウント作成（ログイン）
      * @param string $name アカウント名(他アカウントとの重複不可)
      * @param string $pass パスワード(ハッシュ化してないやつ)※垢名との重複不可
+     * @param bool $unclaimed ```true```で仮登録
      * @param bool $login ログイン処理もするかどうか(true/false)
      * */
-    public function create($name, $pass, $login = true){
+    public function create($name, $pass, $unclaimed = false, $login = true){
         $DB = new database($this->relPATH);
         $pass = hash("sha512", $pass);
-        $info = [
-            "id"    =>  null,
-            "name"  =>  null
-        ];
 
         //アカウント登録
         if($DB->connect()){
-            $sql = "INSERT INTO `account` (`uuid`, `name`, `password`, `unclaimed`) VALUES (?, ?, ?, 1)";
+            $sql = "INSERT INTO `account` (`uuid`, `name`, `password`, `unclaimed`) VALUES (?, ?, ?, ?)";
             $stmt = $DB->getPDO()->prepare($sql);
             do{
                 $uuid = genUUID();
@@ -250,7 +250,7 @@ class create_account{
                     continue;
                 }
                 else{
-                    $arr = [$uuid, $name, $pass];
+                    $arr = [$uuid, $name, $pass, (int)$unclaimed];
                 }
             }while(!$stmt->execute($arr));
 

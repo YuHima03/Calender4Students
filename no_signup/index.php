@@ -32,7 +32,7 @@ if(isset($_POST["form_token"]) === isset($_SESSION["form_token"]) && !isset($acc
     do{
         $name = "UNCLAIMED_" . rand_text();
         $pass = rand_text();
-    }while(!$new_account->create($name, $pass));
+    }while(!$new_account->create($name, $pass, true, true));
 
     header("Location: ../home/");
     

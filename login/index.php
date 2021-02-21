@@ -29,16 +29,19 @@ if(isset($_POST['account_id']) && isset($_POST['pass']) && isset($_POST['form_to
             $auto_login = (int)(isset($_POST['auto_login']) && $_POST['auto_login'] == "on");
 
             //れっつら照合
-            $sql = "SELECT `id` FROM `account` WHERE `name`=? AND `password`=?";
+            $sql = "SELECT `uuid` FROM `account` WHERE `name`=? AND `password`=?";
             $stmt = $DB->getPDO()->prepare($sql);
 
             if($stmt->execute([$account_name, $pass])){
-                $account_id = (int)$stmt->fetch(PDO::FETCH_ASSOC)["id"];
+                $uuid = $stmt->fetch(PDO::FETCH_ASSOC)["uuid"];
+
+                $sql = "INSERT INTO `login_session` (`uuid`, `start_date`, `session_token`, `cookie_token`, `auto_login`) VALUES (?, ?, ?, ?, ?)";
+                $stmt = $DB->getPDO()->prepare($sql);
                 do{
                     $now = date("Y-m-d", time());
                     $token = [rand_text(), rand_text()];
                     //セッションをDBに登録
-                }while(!$DB->execute("INSERT INTO `login_session` (`account_id`, `start_date`, `session_token`, `cookie_token`, `auto_login`) VALUES ('{$account_id}', '{$now}', '{$token[0]}', '{$token[1]}', {$auto_login})"));
+                }while(!$stmt->execute([$uuid, $now, $token[0], $token[1], $auto_login]));
 
                 //セッションとクッキーにそれぞれトークンを保存
                 $_SESSION['_token'] = $token[0];
