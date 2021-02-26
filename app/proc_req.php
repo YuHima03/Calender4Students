@@ -10,6 +10,7 @@
  */
 
 include_once "../libs/C4S_main.php";
+include_once "./file_op.php";
 
 /**
  * 要求は全てPOSTでの受け取り

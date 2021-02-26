@@ -24,8 +24,6 @@ if(!$page->get_account_info()["login"]){
     <?php $page->gen_page("body/header", ["login_info" => $page->get_account_info()]); ?>
     <!--main-->
     <main>
-        <h1>HOME</h1>
-        <div id="clock"></div>
         <div id="calender">
             <div></div>
         </div>

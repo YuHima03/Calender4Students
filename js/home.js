@@ -26,7 +26,7 @@ function createMonthlyCalender(year, month){
     let calenderElem = document.querySelector(calenderMainElemSelecter);
 
     //月
-    let monthElem = calenderElem.querySelector("table.month");
+    let monthElem = calenderElem.querySelector(".month");
     if(isset(monthElem) && Number(monthElem.dataset["year"]) === year && Number(monthElem.dataset["month"]) === month){
         //既に月が存在する場合は処理やらない
         return monthElem;
@@ -57,7 +57,8 @@ function createMonthlyCalender(year, month){
             //日(0~6)(day+1曜日)(week*7+day+fDay)
             for(let day = 0; day < 7; day++){
                 let dateElem = document.createElement("td");
-                let dateShowElem = document.createElement("div"); //日付表示
+                let dateTopElem = document.createElement("div");
+                let dateShowElem = dateTopElem.cloneNode(); //日付表示
                 dateElem.classList.add("date", "out_of_month");
 
                 let date = week * 7 + day - (fDay - 1);
@@ -70,7 +71,8 @@ function createMonthlyCalender(year, month){
                 dateElem.dataset["date"] = date;
                 dateShowElem.textContent = date;
 
-                dateElem.appendChild(dateShowElem);
+                dateTopElem.appendChild(dateShowElem);
+                dateElem.appendChild(dateTopElem);
                 weekElem.appendChild(dateElem);
             }
 
@@ -152,11 +154,22 @@ $(function() {
     let now_month = now.getMonth();
 
     //今月を読み込み
-    loadMonthlyCalender(now.getFullYear(), now_month+1);
+    new Promise((resolve, reject) => {
+        loadMonthlyCalender(now.getFullYear(), now_month+1);
+        resolve();
+    }).then(() => {
+        //
+    });
 
     //画面サイズ変更に合わせて幅や高さ等を変更
     settingWindow(undefined);
     window.addEventListener("resize", settingWindow);
+
+    //文字選択できないように
+    document.addEventListener("selectionchange", () => {
+        getSelection().removeAllRanges();
+    });
+
 
     backgroundLoading(0, 0);
 });

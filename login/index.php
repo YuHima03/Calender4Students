@@ -44,8 +44,9 @@ if(isset($_POST['account_id']) && isset($_POST['pass']) && isset($_POST['form_to
                 }while(!$stmt->execute([$uuid, $now, $token[0], $token[1], $auto_login]));
 
                 //セッションとクッキーにそれぞれトークンを保存
+                $token_limit = ($auto_login) ? time()+60*60*24*30 : 0;
                 $_SESSION['_token'] = $token[0];
-                setcookie("_token", $token[1], time()+60*60*24*30, "/", "", false, true);
+                setcookie("_token", $token[1], $token_limit, "/", "", false, true);
 
                 //転送
                 header("Location: ../home/");
