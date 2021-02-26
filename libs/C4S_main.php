@@ -239,6 +239,7 @@ class create_account{
     public function create($name, $pass, $unclaimed = false, $login = true){
         $DB = new database($this->relPATH);
         $pass = hash("sha512", $pass);
+        $uuid = "";
 
         //アカウント登録
         if($DB->connect()){
@@ -253,6 +254,12 @@ class create_account{
                     $arr = [$uuid, $name, $pass, (int)$unclaimed];
                 }
             }while(!$stmt->execute($arr));
+
+            //データ保存フォルダ作成
+            $dataPath = $this->relPATH . "data/" . $uuid;
+            mkdir($dataPath, 0700);
+            $dataJSON = fopen($dataPath . "/_sch.json", "w+");
+            fclose($dataJSON);
 
             //ログイン処理
             if($login){

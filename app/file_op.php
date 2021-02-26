@@ -10,8 +10,14 @@
  */
 
 class file_op{
-    function __construct(){
-        
+    private $handler = null;
+
+    function __construct(string $filename, string $mode) {
+        $this->handler = fopen($filename, $mode);
+    }
+
+    public function getLines($lineNumber){
+
     }
 }
 

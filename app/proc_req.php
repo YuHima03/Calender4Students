@@ -10,7 +10,26 @@
  */
 
 include_once "../libs/C4S_main.php";
-include_once "./file_op.php";
+
+/**
+ * ==<< 予定等の保存方法に就いて >>==
+ * 
+ * UUID_sch.json
+ *  {
+ *      //参照しやすいようにindexListとscheduleで分ける
+ *      indexList      :   {
+ *      },
+ *      schedule    :   [
+ *      ]
+ *  }
+ */
+
+/**
+ * 結果
+ */
+$result = [
+    "result"    =>  false
+];
 
 /**
  * 要求は全てPOSTでの受け取り
@@ -23,10 +42,13 @@ $post_data = [
     "_DATA"         =>  []      //モードに応じたデータ
 ];
 
+/**
+ * POSTで受け取ったデータの解析
+ */
 foreach($post_data as $key => $value){
     if(!isset($_POST[$key])){
-        echo "false";
-        exit();
+        //必要な情報がない時はfalse返す
+        exit(json_encode($result));
     }
     else{
         $post_data[$key] = $_POST[$key];
@@ -35,10 +57,14 @@ foreach($post_data as $key => $value){
 
 $account = new account("../");
 $DB = new database("../");
-//ログイン済み&データベース接続完了&アカウントID一致
+
+/** 
+ * ログイン済み & データベース接続完了 & アカウントID一致
+*/
 if($account->getinfo()["login"] && $DB->connect() && $account->getinfo()["id"] = $post_data["_ACCOUNT_ID"]){
-    //操作成功
-    echo "true";
+    $result["result"] = true;
 }
+
+exit(json_encode($result));
 
 ?>
