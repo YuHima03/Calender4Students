@@ -22,7 +22,7 @@ $result = [
  * 要求は全てPOSTでの受け取り
  */
 $post_data = [
-    "_TOKEN"   =>  null,   //トークン(照合用)
+    "_UUID"   =>  null,   //照合用UUID(ハッシュ化済み)
     "_MODE"         =>  null,   //モード
     "_TIMESTAMP"    =>  null,   //リクエスト送信時間
     "_DATETIME"     =>  null,   //対象日
