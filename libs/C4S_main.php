@@ -142,7 +142,8 @@ class account{
         $DB = new database($this->relPATH);
 
         if(isset($_SESSION['_token']) && isset($_COOKIE['_token'])){
-            if($DB->connect()){
+            try{
+                $DB->connect();
                 //ログイン情報をDBと照合
                 $token = [$_SESSION['_token'], $_COOKIE['_token']];
 
@@ -161,7 +162,7 @@ class account{
                 else{
                     //不正ログイン？
                     $this->logout("force");
-                    $this->info["errors"][] = "BAD_LOGIN_REQUEST";
+                    $this->info["errors"][] = "ERR_BAD_LOGIN_REQUEST";
                     echo "ログアウトしました";
 
                     //ページ再読み込み
@@ -171,8 +172,9 @@ class account{
                 //切断
                 $DB->disconnect();
             }
-            else{
-                $this->info["errors"][] = "DB_CONNECTION_ERROR";
+            catch(Exception $e){
+                //DBに接続できなかったとき
+                $this->info["errors"][] = "ERR_DB_CONNECTION_REFUSED";
                 return;
             }
         }
@@ -242,7 +244,8 @@ class create_account{
         $uuid = "";
 
         //アカウント登録
-        if($DB->connect()){
+        try{
+            $DB->connect();
             $sql = "INSERT INTO `account` (`uuid`, `name`, `password`, `unclaimed`) VALUES (?, ?, ?, ?)";
             $stmt = $DB->getPDO()->prepare($sql);
             do{
@@ -291,7 +294,7 @@ class create_account{
 
             $DB->disconnect();
         }
-        else{
+        catch(Exception $e){
             return false;
         }
 
@@ -304,23 +307,32 @@ class create_account{
 class database{
     private $mysql = null;
     private $ini_data = null;
+    private $relPath = "./";
 
     function __construct($rPATH){
-        $this->ini_data = parse_ini_file($rPATH . "libs/PDO_data.ini");
+        $this->relPath = $rPATH;
+        $this->ini_data = parse_ini_file($this->relPath . "libs/PDO_data.ini");
     }
 
     public function is_connected(){
         return isset($this->mysql);
     }
 
-    public function connect(){
+    public function connect($auto_err_proc = true){
         //ini_dataはiniファイルから取得するデータベース情報ね
         if(isset($this->ini_data["user"]) && isset($this->ini_data["pass"])){
             try{
                 $this->mysql = new PDO("mysql:dbname=C4S;host=localhost", $this->ini_data["user"], $this->ini_data["pass"]);
             }
             catch(Exception $e){
-                return false;
+                if($auto_err_proc){
+                    header("Location: {$this->relPath}err/?errcode=ERR_DB_CONNECTING_REFUSED&to={$_SERVER['PHP_SELF']}");
+                    exit();
+                }
+                else{
+                    throw new Exception("ERR_DB_CONNECTING_REFUSED");
+                    return false;
+                }
             }
         }
         else{
@@ -366,6 +378,7 @@ class database{
             }
         }
         else{
+            throw new Exception("ERR_DB_CONNECTION_REFUSED");
             return false;
         }
     }
