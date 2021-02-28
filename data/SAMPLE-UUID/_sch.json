@@ -1,11 +1,11 @@
 {
     "indexList" :   {
-        "2021-03-01"    :   [0],
-        "YYYY-MM-DD"    :   [1, "..."]
+        "2021-03-01"    :   ["sG4le8YN"],
+        "YYYY-MM-DD"    :   ["ID(8桁)", "..."]
     },
 
-    "schedule"  :   [
-        {
+    "schedule"  :   {
+        "sG4le8yN"  :   {
             "date"  :   {
                 "from"  :   "2021-03-01-05-40",
                 "to"    :   "2021-03-01-14-30"
@@ -16,7 +16,7 @@
             "detail":   "This is an **example event!**"
         },
 
-        {
+        "ID(8桁)"    :   {
             "date"  :   {
                 "from"  :   "YYYY-MM-DD-HH-ii (NOT NULL)",
                 "to"    :   "YYYY-MM-DD-HH-ii / SAME-HH-ii  /  null",
@@ -28,14 +28,14 @@
             "color" :   "hex(#000000) / null(= default color)",
             "detail":   "string (you can use `MarkDown format`)"
         }
-    ],
+    },
 
-    "repeatList":  [
-        {
+    "repeatList":  {
+        "K4mw63Qc"   :   {
             "day"   :   [0, 2, 5]
         },
-        {
+        "ID(8桁)"   :   {
             "day"   :   ["day -> 0~6 (0:Sun, 1:Mon, ..., 6:Sat)"]
         }
-    ] 
+    }
 }
