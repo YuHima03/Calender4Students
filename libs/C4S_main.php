@@ -130,7 +130,7 @@ class page{
 class account{
     private $info = [
         "login"     =>  false,
-        "uuid"        =>  null,
+        "uuid"      =>  null,
         "name"      =>  null,
         "errors"    =>  [],
         "unclaimed" =>  false

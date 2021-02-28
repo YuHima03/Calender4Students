@@ -12,19 +12,6 @@
 include_once "../libs/C4S_main.php";
 
 /**
- * ==<< 予定等の保存方法に就いて >>==
- * 
- * UUID_sch.json
- *  {
- *      //参照しやすいようにindexListとscheduleで分ける
- *      indexList      :   {
- *      },
- *      schedule    :   [
- *      ]
- *  }
- */
-
-/**
  * 結果
  */
 $result = [
@@ -62,6 +49,8 @@ $DB = new database("../");
  * ログイン済み & データベース接続完了 & アカウントID一致
 */
 if($account->getinfo()["login"] && $DB->connect() && $account->getinfo()["id"] = $post_data["_ACCOUNT_ID"]){
+    $uuid = $account->getinfo()["uuid"];
+
     $result["result"] = true;
 }
 
