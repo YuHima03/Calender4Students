@@ -42,8 +42,8 @@ foreach($post_data as $key => $value){
     }
 }
 
-$account = new account("../");
-$DB = new database("../");
+$account = new account();
+$DB = new database();
 
 /** 
  * ログイン済み & データベース接続完了 & アカウントID一致

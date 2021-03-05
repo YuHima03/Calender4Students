@@ -1,0 +1,14 @@
+/* default */
+body {
+    margin: 0;
+    background: whitesmoke;
+    font-family: 'Yu Gothic';
+}
+
+main, header, footer {
+    background: white;
+}
+
+* {
+    box-sizing: border-box;
+}

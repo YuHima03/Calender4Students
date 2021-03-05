@@ -2,7 +2,7 @@
 
 include_once "../libs/C4S_main.php";
 
-$DB = new database("../");
+$DB = new database();
 $result = [];
 
 if(isset($_POST['name'])){

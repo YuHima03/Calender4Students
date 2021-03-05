@@ -1,5 +1,32 @@
 <?php
 
+class URI{
+    static public function RELATIVE_PATH() : string{
+        preg_match_all("/\//", $_SERVER["SCRIPT_NAME"], $result, PREG_SET_ORDER);
+        return "./".str_repeat("../", sizeof($result) - 1);
+    }
+
+    static public function LOGIN_PAGE(bool $setRelPATH = true, $get = null) : string{
+        $result = (($setRelPATH) ? URI::RELATIVE_PATH() : "") . "login/";
+        
+        if(is_array($get)){
+            $result .= "?";
+            $fstFlag = false;
+            foreach($get as $key => $value){
+                if(!$fstFlag){
+                    $fstFlag = true;
+                }
+                else{
+                    $result .= "&";
+                }
+                $result .= "{$key}={$value}";
+            }
+        }
+
+        return $result;
+    }
+}
+
 class page{
     private $relPATH = "./";
     private $page_info = [
@@ -23,12 +50,10 @@ class page{
         "html_end"      =>  false
     ];
 
-    function __construct($rPATHnum = 0){
-        for($i = 1; $i <= $rPATHnum; $i++){
-            $this->relPATH .= "../";
-        }
+    function __construct($auto_page_moving = true){
+        $this->relPATH = URI::RELATIVE_PATH();
 
-        $this->account = new account($this->relPATH);
+        $this->account = new account($auto_page_moving);
         $this->account_info = $this->account->getinfo();
     }
 
@@ -132,14 +157,18 @@ class account{
         "login"     =>  false,
         "uuid"      =>  null,
         "name"      =>  null,
-        "errors"    =>  [],
+        "error"    =>  [],
         "unclaimed" =>  false
     ];
     private $relPATH = "./";
 
-    function __construct($rPATH){
-        $this->relPATH = $rPATH;
-        $DB = new database($this->relPATH);
+    function __construct($auto_page_moving = true){
+        $this->relPATH = URI::RELATIVE_PATH();
+
+        $DB = new database();
+
+        //失敗時にリダイレクトする相対パス
+        $moveto = null;
 
         if(isset($_SESSION['_token']) && isset($_COOKIE['_token'])){
             try{
@@ -153,20 +182,32 @@ class account{
                 $data = $stmt->fetch(PDO::FETCH_ASSOC);
                 
                 if($data["cookie_token"] == $token[1]){
-                    //認証完了
-                    $this->info["uuid"] = $data["uuid"];
-                    $this->info["unclaimed"] = (bool)$data["unclaimed"];
-                    $this->info["name"] = ($this->info["unclaimed"]) ? "Guest" : $data["name"];
-                    $this->info["login"] = true;
+                    if(strtotime($data["start_date"])+6*30*24*60*60 > time()){
+                        //認証完了
+                        $this->info["uuid"] = $data["uuid"];
+                        $this->info["unclaimed"] = (bool)$data["unclaimed"];
+                        $this->info["name"] = ($this->info["unclaimed"]) ? "Guest" : $data["name"];
+                        $this->info["login"] = true;
+
+                        //最終ログイン日時更新
+                        $sql = "UPDATE `login_session` SET `start_date`=? WHERE `session_token`=? AND `cookie_token`=?";
+                        $stmt = $DB->prepare($sql);
+                        $stmt->execute([date("Y-m-d", time()), $_SESSION["_token"], $_COOKIE["_token"]]);
+                    }
+                    else{
+                        //セッション切れ
+                        $this->info["error"][] = "ERR_SESSION_EXPIRED";
+
+                        $moveto = URI::LOGIN_PAGE(true, ["mode"=>"update"]);
+                    }
                 }
                 else{
                     //不正ログイン？
-                    $this->logout("force");
-                    $this->info["errors"][] = "ERR_BAD_LOGIN_REQUEST";
+                    $this->info["error"][] = "BAD_LOGIN_REQUEST";
                     echo "ログアウトしました";
 
                     //ページ再読み込み
-                    header("Location: ./");
+                    $moveto = URI::LOGIN_PAGE(true, ["mode"=>"retry"]);
                 }
 
                 //切断
@@ -174,9 +215,16 @@ class account{
             }
             catch(Exception $e){
                 //DBに接続できなかったとき
-                $this->info["errors"][] = "ERR_DB_CONNECTION_REFUSED";
+                $this->info["error"][] = "DB_CONNECTION_REFUSED";
                 return;
             }
+        }
+        else{
+            $moveto = URI::LOGIN_PAGE(true);
+        }
+
+        if(is_string($moveto) && $auto_page_moving){
+            header("Location: {$moveto}");
         }
     }
 
@@ -191,11 +239,11 @@ class account{
     /**
      * ログアウトする
      * @param string $mode モード("force"で強制ログアウト)
+     * @param string|false $moveto
      */
-    public function logout($mode = "normal"){
+    public function logout($mode = "normal", $moveto = null){
         if(isset($this->info["uuid"]) || $mode == "force"){
-
-            $DB = new database($this->relPATH);
+            $DB = new database();
             if($DB->connect()){
                 //DBから削除
                 $sql = "DELETE FROM `login_session` WHERE `session_token`=?";
@@ -218,6 +266,10 @@ class account{
 
                 $DB->disconnect();
             }
+
+            if($moveto !== false){
+                header("Location: {$moveto}");
+            }
         }
     }
 }
@@ -227,8 +279,8 @@ class account{
 class create_account{
     private $relPATH = "./";
 
-    function __construct($_relPATH){
-        $this->relPATH = $_relPATH;
+    function __construct(){
+        $this->relPATH = URI::RELATIVE_PATH();
     }
 
     /** 
@@ -239,7 +291,7 @@ class create_account{
      * @param bool $login ログイン処理もするかどうか(true/false)
      * */
     public function create($name, $pass, $unclaimed = false, $login = true){
-        $DB = new database($this->relPATH);
+        $DB = new database();
         $pass = hash("sha512", $pass);
         $uuid = "";
 
@@ -309,8 +361,8 @@ class database{
     private $ini_data = null;
     private $relPath = "./";
 
-    function __construct($rPATH){
-        $this->relPath = $rPATH;
+    function __construct(){
+        $this->relPath = URI::RELATIVE_PATH();
         $this->ini_data = parse_ini_file($this->relPath . "libs/PDO_data.ini");
     }
 
@@ -381,6 +433,10 @@ class database{
             throw new Exception("ERR_DB_CONNECTION_REFUSED");
             return false;
         }
+    }
+
+    public function prepare(string $sql){
+        return (($this->is_connected()) ? $this->mysql->prepare($sql) : false);
     }
 
     public function getPDO(){

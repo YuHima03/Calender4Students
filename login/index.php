@@ -2,7 +2,14 @@
 
 include "../libs/C4S_main.php";
 
-$page = new page(1);
+$page = new page(false);
+
+//JavaScriptに渡すデータ
+$PHP_DATA = [
+    "mode"  =>  "normal",
+    "account_error" =>  $page->get_account_info()["error"],
+    "login_error"   =>  []
+];
 
 if($page->get_account_info()["login"]){
     //ログイン済みの場合は転送
@@ -10,9 +17,16 @@ if($page->get_account_info()["login"]){
     exit();
 }
 
+//ページ情報設定
 $page->set_info([
     "TITLE" =>  "ログイン"
 ]);
+
+//////////////////////////////////////////////////
+//GETデータで判別
+if(isset($_GET["mode"])){
+    $PHP_DATA["mode"] = $_GET["mode"];
+}
 
 //////////////////////////////////////////////////
 //POSTデータ受け取り
@@ -21,7 +35,7 @@ if(isset($_POST['account_id']) && isset($_POST['pass']) && isset($_POST['form_to
     if($_SESSION['form_token'] == $_POST['form_token']){
         unset($_SESSION['form_token']);
 
-        $DB = new database("../");
+        $DB = new database();
         if($DB->connect()){
             //パスワードはハッシュ化したもので照合
             $account_name = $_POST['account_id'];
@@ -31,9 +45,11 @@ if(isset($_POST['account_id']) && isset($_POST['pass']) && isset($_POST['form_to
             //れっつら照合
             $sql = "SELECT `uuid` FROM `account` WHERE `name`=? AND `password`=?";
             $stmt = $DB->getPDO()->prepare($sql);
+            $stmt->execute([$account_name, $pass]);
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
 
-            if($stmt->execute([$account_name, $pass])){
-                $uuid = $stmt->fetch(PDO::FETCH_ASSOC)["uuid"];
+            if($result !== false){
+                $uuid = $result["uuid"];
 
                 $sql = "INSERT INTO `login_session` (`uuid`, `start_date`, `session_token`, `cookie_token`, `auto_login`) VALUES (?, ?, ?, ?, ?)";
                 $stmt = $DB->getPDO()->prepare($sql);
@@ -52,14 +68,14 @@ if(isset($_POST['account_id']) && isset($_POST['pass']) && isset($_POST['form_to
                 header("Location: ../home/");
             }
             else{
-                echo "IDまたはパスワードが違います、もう一度ご確認ください";
+                $PHP_DATA["login_error"][] = "WRONG_ID_OR_PASSWORD";
             }
 
             //接続解除
             $DB->disconnect();
         }
         else{
-            echo "エラーが発生しました、時間を空けてもう一度お試しください。";
+            $PHP_DATA["login_error"][] = "UNKNOWN_ERROR_OCCURED";
         }
     }
 }
@@ -68,12 +84,17 @@ if(isset($_POST['account_id']) && isset($_POST['pass']) && isset($_POST['form_to
 $form_token = rand_text();
 $_SESSION['form_token'] = $form_token;
 
+//headタグの内容
+$HEAD_CSS = $page->add_css(["style/main.css", "style/login.css"]);
+$HEAD_JS = $page->add_js(["js/main.js", "js/login.js"]);
+$PHP_DATA = $page->put_data($PHP_DATA, true);
+
 ?>
 
 <!DOCTYPE html>
-<html lang="ja">
-<?php $page->gen_page("head", $page->add_css(["style/main.css"]) . $page->add_js(["js/main.js", "js/login.js"])); ?>
-<body id="_login">
+<html lang="ja" id="_login">
+<?php $page->gen_page("head", $HEAD_CSS . $HEAD_JS . $PHP_DATA); ?>
+<body>
     <main>
         <div id="container">
             <div class="title">
@@ -81,13 +102,21 @@ $_SESSION['form_token'] = $form_token;
             </div>
             <div>
                 <form action="" method="POST">
-                    <p>アカウント名</p>
-                    <input type="text" name="account_id" value="<?=(isset($_POST['account_id']))?"{$_POST['account_id']}":"";?>" />
-                    <p>パスワード</p>
-                    <input type="password" name="pass" />
-                    <input type="hidden" name="form_token" value="<?=$form_token?>" />
+                    <label>
+                        <span>アカウント名</span>
+                        <input type="text" name="account_id" value="<?=(isset($_POST['account_id']))?"{$_POST['account_id']}":"";?>" />
+                    </label>
+                    <label>
+                        <span>パスワード</span>
+                        <input type="password" name="pass" autocomplete="password" />
+                    </label>
+                    <label>
+                        <input type="checkbox" name="auto_login"/>
+                        <span>自動ログイン</span>
+                    </label>
                     <input type="submit" value="ログイン" />
-                    <input type="checkbox" name="auto_login"/><p>自動ログイン</p>
+                    <!--トークン-->
+                    <input type="hidden" name="form_token" value="<?=$form_token?>" />
                 </form>
             </div>
         </div>

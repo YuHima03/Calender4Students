@@ -4,7 +4,7 @@
 //いろいろ設定
 include_once "./libs/C4S_main.php";
 
-$page = new page(0);
+$page = new page(false);
 
 if($page->get_account_info()["login"]){
     //ログイン済みの場合は転送

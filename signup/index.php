@@ -2,7 +2,7 @@
 
 include_once "../libs/C4S_main.php";
 
-$page = new page(1);
+$page = new page();
 
 if($page->get_account_info()["login"]){
     header("Location: ../home/");
@@ -17,9 +17,9 @@ else{
         $name = $_POST["_NAME"];
         $pass = $_POST["_PASS"];
 
-        $DB = new database("../");
+        $DB = new database();
         if($DB->connect()){
-            $accountCreation = new create_account("../");
+            $accountCreation = new create_account();
             $accountCreation->create($name, $pass, false, true);
 
             $DB->disconnect();

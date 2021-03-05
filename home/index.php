@@ -2,15 +2,14 @@
 
 include_once "../libs/C4S_main.php";
 
-$page = new page(1);
+$page = new page();
 
 $page->set_info([
     "TITLE" =>  "ホーム"
 ]);
 
 if(!$page->get_account_info()["login"]){
-    //ログインしてない
-    header("Location: ../");
+
 }
 
 ?>

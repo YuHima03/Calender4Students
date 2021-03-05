@@ -300,4 +300,11 @@ $(function(){
             }
         });
     });
+
+    //inputタグにnameに応じたクラス名をつける
+    [...document.getElementsByTagName("input")].forEach(element => {
+        if(isset(element.type)){
+            element.classList.add(`input_${element.type}`);
+        }
+    });
 });
