@@ -265,6 +265,28 @@ function removeAllChildElements(Element){
 }
 
 /**
+ * ```targetElement```内のすべての要素を取得(どれだけ階層が下でも兎に角全部)
+ * @param {HTMLElement} targetElement 
+ */
+function getAllChildren(targetElement){
+    let result = Array();
+    let childrenElements = targetElement.children;
+
+    for(let i = 0; i < childrenElements.length; i++){
+        let elem = childrenElements[i];
+        result.push(elem);
+        
+        if(elem.children.length > 0){
+            getAllChildren(elem).forEach(v => {
+                result.push(v);
+            });
+        }
+    }
+
+    return result;
+}
+
+/**
  * ```a≡k (mod b)```の```k(余り)```を返す(正の数)
  * @param {Number} a 
  * @param {Number} b 
