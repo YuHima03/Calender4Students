@@ -2,7 +2,7 @@
 body {
     margin: 0;
     background: whitesmoke;
-    font-family: 'Yu Gothic';
+    font-family: 'Yu Gothic', system-ui ,-apple-system, BlinkMacSystemFont, sans-serif;
 }
 
 main, header, footer {
@@ -11,4 +11,15 @@ main, header, footer {
 
 * {
     box-sizing: border-box;
+    font-family: inherit;
 }
+
+a {
+    text-decoration: underline;
+    color: rgb(29, 144, 221);
+}
+
+    a:hover {
+        text-decoration: none;
+        transform: rotate(10deg);
+    }

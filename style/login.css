@@ -61,7 +61,7 @@ main {
         }
 
 
-        #container form > label:not(:nth-child(3)) {
+        #container form > label:not(.name_auto_login) {
             border-radius: .2rem;
             transition: 100ms ease-out background-color;
             padding: 1px;
@@ -76,7 +76,7 @@ main {
                 border-color: #fa6d6d;
             }
 
-            #container form > label:not(:nth-child(3)) > span {
+            #container form > label:not(.name_auto_login) > span {
                 transition: 100ms ease-out color;
             }
                 #container form > label.focus > span, #container form > label.error > span {
@@ -133,3 +133,34 @@ main {
                 transform: scale(.98);
                 box-shadow: rgba(208, 208, 208, 0.75) 0 0 1.5rem;
             }
+
+    
+    #container > .others {
+        font-size: .85rem;
+    }
+
+        #container > .others > p {
+            margin: .5em auto;
+        }
+
+            #container > .others > p > a {
+                margin-left: .5em;
+            }
+
+        
+    #container > #errmsg {
+        display: none;
+
+        background-color: #fa6d6d;
+
+        color: white;
+        font-size: 1rem;
+        line-height: 1.4;
+
+        border: solid 1px #fa6d6d;
+        border-radius: .2rem;
+    }
+
+        #container > #errmsg > p{
+            margin: .5em 1em;
+        }

@@ -323,10 +323,22 @@ $(function(){
         });
     });
 
-    //inputタグにnameに応じたクラス名をつける
+    //inputタグにtypeとnameに応じたクラス名をそれぞれつける
     [...document.getElementsByTagName("input")].forEach(element => {
         if(isset(element.type)){
             element.classList.add(`input_${element.type}`);
         }
+        if(isset(element.name)){
+            element.classList.add(`name_${element.name}`);
+        }
+    });
+
+    //クラス名判定
+    getAllChildren(document.body).forEach(element => {
+        element.classList.forEach(v => {
+            if(v.match(/-weight-\d{3}/)){
+                element.style.fontWeight =  String(v.match(/\d{3}$/)[0]);
+            }
+        });
     });
 });

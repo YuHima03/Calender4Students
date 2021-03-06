@@ -100,15 +100,16 @@ $PHP_DATA = $page->put_data($PHP_DATA, true);
             <div class="title">
                 <h2>ログイン</h2>
             </div>
+            <div id="errmsg"></div>
             <div>
-                <form action="" method="POST">
+                <form action="" method="POST" onsubmit="return false;">
                     <label>
                         <span>アカウント名</span>
-                        <input type="text" name="account_id" value="<?=(isset($_POST['account_id']))?"{$_POST['account_id']}":"";?>" />
+                        <input type="text" name="account_id" value="<?=(isset($_POST['account_id']))?"{$_POST['account_id']}":"";?>" required/>
                     </label>
                     <label>
                         <span>パスワード</span>
-                        <input type="password" name="pass" autocomplete="password" />
+                        <input type="password" name="pass" autocomplete="password" required />
                     </label>
                     <label>
                         <input type="checkbox" name="auto_login"/>
@@ -118,6 +119,9 @@ $PHP_DATA = $page->put_data($PHP_DATA, true);
                     <!--トークン-->
                     <input type="hidden" name="form_token" value="<?=$form_token?>" />
                 </form>
+            </div>
+            <div class="others">
+                <p>アカウントをお持ちでない方は<a class="-weight-500" href="../signup/">新規登録</a></p>
             </div>
         </div>
     </main>

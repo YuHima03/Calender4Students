@@ -2,7 +2,7 @@
 
 include_once "../libs/C4S_main.php";
 
-$page = new page();
+$page = new page(false);
 
 if($page->get_account_info()["login"]){
     header("Location: ../home/");
@@ -45,7 +45,7 @@ else{
 
 <!DOCTYPE html>
 <html lang="ja">
-<?php $page->gen_page("head", $page->add_css(["style/main.css"]) . $page->add_js(["js/main.js", "js/signup.js"])); ?>
+<?php $page->gen_page("head", $page->add_css(["style/main.css", "style/login.css", "style/signup.css"]) . $page->add_js(["js/main.js", "js/signup.js"])); ?>
 <body id="_signup">
     <main>
         <div>
