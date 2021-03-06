@@ -93,7 +93,7 @@ $PHP_DATA = $page->put_data($PHP_DATA, true);
 
 <!DOCTYPE html>
 <html lang="ja" id="_login">
-<?php $page->gen_page("head", $HEAD_CSS . $HEAD_JS . $PHP_DATA); ?>
+<?php $page->gen_page("head", $HEAD_CSS . $PHP_DATA); ?>
 <body>
     <main>
         <div id="container">
@@ -121,5 +121,6 @@ $PHP_DATA = $page->put_data($PHP_DATA, true);
             </div>
         </div>
     </main>
+    <?=$HEAD_JS?>
 </body>
 </html>

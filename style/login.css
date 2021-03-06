@@ -15,23 +15,28 @@ main {
     box-shadow: rgba(208, 208, 208, 0.5) 0 0 2.5rem;
 }
 
+
 #container {
     width: auto;
     margin: .5rem;
 }
 
+
     #container > div {
         margin: .5rem auto;
     }
+
 
     #container form {
         width: 90%;
         margin: 0 5%;
     }
 
+
         #container form * {
             outline: none;
         }
+
 
         #container > .title {
             display: inline-block;
@@ -41,9 +46,11 @@ main {
             color: #2a2a2a;
         }
 
+
             #container > .title > h2 {
                 margin: 0;
             }
+
 
         #container form > input, #container form > label {
             display: inline-block;
@@ -53,20 +60,49 @@ main {
             font-size: 1rem;
         }
 
+
+        #container form > label:not(:nth-child(3)) {
+            border-radius: .2rem;
+            transition: 100ms ease-out background-color;
+            padding: 1px;
+        }
+            #container form > label.focus {
+                background-color: #42a1f0;
+            }
+            #container form > label.error {
+                background-color: #fa6d6d;
+            }
+            #container form > label.error > input {
+                border-color: #fa6d6d;
+            }
+
+            #container form > label:not(:nth-child(3)) > span {
+                transition: 100ms ease-out color;
+            }
+                #container form > label.focus > span, #container form > label.error > span {
+                    color: white;
+                }
+
+
         #container form input.input_text, #container form input.input_password {
             display: inline-block;
             width: 100%;
 
+            font-family: inherit;
+            font-weight: 500;
             font-size: .8rem;
             padding: .3em .8em;
 
             background: white;
             border: solid 1px #aeaeae;
-        }
+            border-radius: .2rem;
 
+            transition: 150ms ease-out border;
+        }
             #container form input.input_text:focus, #container form input.input_password:focus {
                 border: solid 1px #42a1f0;
             }
+
 
         #container form > input.input_submit {
             display: inline-block;
@@ -74,6 +110,7 @@ main {
             margin-left: calc(50% - 5em);
             padding: .25em 0;
 
+            font-family: inherit;
             font-size: 1rem;
             font-weight: 500;
 
@@ -85,14 +122,12 @@ main {
 
             transition: ease-out 150ms transform, ease-out 150ms background-color, ease-out 150ms box-shadow;
         }
-
             #container form > input.input_submit:hover {
                 cursor: pointer;
                 background-color: #12b88e;
                 transform: scale(1.015);
                 box-shadow: rgba(208, 208, 208, 0.5) 0 0 1rem;
             }
-
             #container form > input.input_submit:active {
                 background-color: #109e7b;
                 transform: scale(.98);
