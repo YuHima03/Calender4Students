@@ -1,0 +1,24 @@
+{
+    "login" :   {
+        "pageinfo"  :   {
+            "title" :   "ログイン"
+        },
+        "main"  :   {
+            "login_title"   :   "カレンダーにログイン",
+            "login"         :   "ログイン",
+            "account_name"  :   "アカウント名",
+            "password"      :   "パスワード",
+            "auto_login"    :   "自動ログイン",
+            "dont_have_account" :   "アカウントをお持ちでないですか？",
+            "signup_here"   :   "新規登録"
+        },
+        "error"    :   {
+            "incorrect_id_or_password"  :   "おっと...アカウント名またはパスワードが違います。間違いがないかご確認ください。",
+            "unknown_error_occured"     :   "不明なエラーが発生しました。時間を空けてもう一度お試し下さい。"
+        }
+    },
+
+    "signup"    :   {
+
+    }
+}

@@ -9,7 +9,9 @@ if($page->get_account_info()["login"]){
     exit();
 }
 else{
-    if(isset($_POST["_TOKEN"]) && isset($_POST["_NAME"]) && isset($_POST["_PASS"])){
+    if(isset($_POST["_TOKEN"]) && isset($_POST["_NAME"]) && isset($_POST["_PASS"]) && $_POST["_TOKEN"] === $_SESSION["form_token"]){
+        unset($_SESSION["form_token"]);
+
         $page->set_info([
             "TITLE" =>  "処理中..."
         ]);

@@ -4,11 +4,14 @@ include "../libs/C4S_main.php";
 
 $page = new page(false);
 
+$LANG_DATA = $page->get_lang_data()["login"];
+
 //JavaScriptに渡すデータ
 $PHP_DATA = [
     "mode"  =>  "normal",
     "account_error" =>  $page->get_account_info()["error"],
-    "login_error"   =>  []
+    "login_error"   =>  [],
+    "lang"  =>  $LANG_DATA
 ];
 
 if($page->get_account_info()["login"]){
@@ -19,7 +22,7 @@ if($page->get_account_info()["login"]){
 
 //ページ情報設定
 $page->set_info([
-    "TITLE" =>  "ログイン"
+    "TITLE" =>  $LANG_DATA["pageinfo"]["title"]
 ]);
 
 //////////////////////////////////////////////////
@@ -98,30 +101,30 @@ $PHP_DATA = $page->put_data($PHP_DATA, true);
     <main>
         <div id="container">
             <div class="title">
-                <h2>ログイン</h2>
+                <h2><?=$LANG_DATA["main"]["login_title"]?></h2>
             </div>
             <div id="errmsg"></div>
             <div>
                 <form action="" method="POST" onsubmit="return false;">
                     <label>
-                        <span>アカウント名</span>
+                        <span><?=$LANG_DATA["main"]["account_name"]?></span>
                         <input type="text" name="account_id" value="<?=(isset($_POST['account_id']))?"{$_POST['account_id']}":"";?>" required/>
                     </label>
                     <label>
-                        <span>パスワード</span>
+                        <span><?=$LANG_DATA["main"]["password"]?></span>
                         <input type="password" name="pass" autocomplete="password" required />
                     </label>
                     <label>
                         <input type="checkbox" name="auto_login"/>
-                        <span>自動ログイン</span>
+                        <span><?=$LANG_DATA["main"]["auto_login"]?></span>
                     </label>
-                    <input type="submit" value="ログイン" />
+                    <input type="submit" value="<?=$LANG_DATA["main"]["login"]?>" />
                     <!--トークン-->
                     <input type="hidden" name="form_token" value="<?=$form_token?>" />
                 </form>
             </div>
             <div class="others">
-                <p>アカウントをお持ちでない方は<a class="-weight-500" href="../signup/">新規登録</a></p>
+                <p><?=$LANG_DATA["main"]["dont_have_account"]?><a class="-weight-500" href="../signup/"><?=$LANG_DATA["main"]["signup_here"]?></a></p>
             </div>
         </div>
     </main>

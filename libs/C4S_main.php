@@ -49,12 +49,34 @@ class page{
         "html_start"    =>  false,
         "html_end"      =>  false
     ];
+    private $lang_data = [];
 
     function __construct($auto_page_moving = true){
         $this->relPATH = URI::RELATIVE_PATH();
 
         $this->account = new account($auto_page_moving);
         $this->account_info = $this->account->getinfo();
+
+        $lang = "";
+        if(isset($_COOKIE["_lang"]) && preg_match("/^(JA|ja|EN|en)$/", $_COOKIE["_lang"])){
+            switch($_COOKIE["_lang"]){
+                case("JA"):
+                case("ja"):
+                    $lang = "JA";
+                    break;
+                case("EN"):
+                case("en"):
+                    $lang = "EN";
+                    break;                    
+            }
+        }
+        else{
+            $lang = "JA";
+            setcookie("_lang", "JA", 0, "/");
+        }
+
+        //言語データ取得
+        $this->lang_data = json_decode(file_get_contents("{$this->relPATH}lang/{$lang}.json"), true);
     }
 
     public function set_info($arr){
@@ -149,6 +171,14 @@ class page{
             $this->gen_flag["put_PHP_data"] = true;
             return $ret;
         }
+    }
+
+    /**
+     * JSON形式の言語データを取得
+     * @return array
+     */
+    public function get_lang_data(){
+        return $this->lang_data;
     }
 }
 

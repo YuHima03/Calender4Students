@@ -6,21 +6,8 @@
  * @version 1.0.0 (2021-03-05)
  */
 
-let JA = {
-    errorMessage    :   {
-        incorrect_id_or_password    :   "おっと...アカウント名またはパスワードが違います。間違いがないかご確認ください。",
-        unknown_error_occured   :   "不明なエラーが発生しました。時間を空けてもう一度お試し下さい。"
-    }
-}
 
-let EN = {
-    errorMessage    :   {
-        incorrect_id_or_password    :   "Oops... The account name or password is incorrect. Please check if there are any mistakes and try again.",
-        unknown_error_occured   :   "Unknown error occured. Please try again later."
-    }
-}
-
-let Messages = JA;
+let Messages = PHP_DATA["lang"];
 
 
 /**
@@ -48,10 +35,10 @@ if(loginError.length){
     loginError.forEach(value => {
         switch(value){
             case("WRONG_ID_OR_PASSWORD"):
-                errorBox(Messages.errorMessage.incorrect_id_or_password);
+                errorBox(Messages.error.incorrect_id_or_password);
                 break;
             case("UNKNOWN_ERROR_OCCURED"):
-                errorBox(Messages.errorMessage.unknown_error_occured);
+                errorBox(Messages.error.unknown_error_occured);
                 break;
         }
     });

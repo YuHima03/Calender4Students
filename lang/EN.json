@@ -1,0 +1,24 @@
+{
+    "login" :   {
+        "pageinfo"  :   {
+            "title" :   "Login"
+        },
+        "main"  :   {
+            "login_title"   :   "Log in to Calender",
+            "login"         :   "Log in",
+            "account_name"  :   "Account name",
+            "password"      :   "Password",
+            "auto_login"    :   "Auto login",
+            "dont_have_account" :   "If you don't have your account,",
+            "signup_here"   :   "Sign up here"
+        },
+        "error"    :   {
+            "incorrect_id_or_password"  :   "Oops... The account name or password is incorrect. Please check if there are any mistakes and try again.",
+            "unknown_error_occured"     :   "Unknown error occured. Please try again later."
+        }
+    },
+
+    "signup"    :   {
+
+    }
+}
