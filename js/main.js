@@ -97,80 +97,6 @@ function dateToAssociativeArray(DateObject = undefined, UTC = false, noMonthZero
 }
 
 /**
- * Dateオブジェクトで取得した時間を文字列にする
- * @param {Object} DatetimeObj Dateオブジェクト
- * @param {String} format 書式(PHPとおんなじ)
- * @param {Boolean} UTC UTC時間を使う
- * @returns {String}
- */
-function dateToString(DateObject = undefined, format = "", UTC = false){
-    let now = (isset(DateObject)) ? DateObject : new Date();
-    let arr = dateToAssociativeArray(now, UTC, true);
-
-    //フルスペルの曜日
-    function getFullSpellDay(day_num){
-        switch(day_num){
-            case(0):    return "Sunday";
-            case(1):    return "Monday";
-            case(2):    return "Tuesday";
-            case(3):    return "Wednesday";
-            case(4):    return "Thursday";
-            case(5):    return "Friday";
-            case(6):    return "Saturday";
-        }
-    }
-    //フルスペルの月
-    function getFullSpellMonth(month_num){ //1~12
-        switch(month_num){
-            case(1):    return "January";
-            case(2):    return "February";
-            case(3):    return "March";
-            case(4):    return "April";
-            case(5):    return "May";
-            case(6):    return "June";
-            case(7):    return "July";
-            case(8):    return "August";
-            case(9):    return "September";
-            case(10):   return "October";
-            case(11):   return "November";
-            case(12):   return "December";
-        }
-    }
-    
-    let result = format.replace(/Y/g, arr.year) //年(4桁)
-    .replace(/y/g, str_split(String(arr.year), -2, -1)) //年(2桁)
-    .replace(/n/g, arr.month) //月(1~2桁)
-    .replace(/m/g, ((!Math.floor(arr.month / 10)) ? "0" : "") + String(arr.month)) //月(2桁)
-    .replace(/w/g, arr.day) //曜日(0[日]~6[土])
-    .replace(/N/g, (arr.day > 0) ? arr.day : 7) //ISO-8601形式の曜日(1[月]~7[日])
-    .replace(/d/g, ((!Math.floor(arr.date / 10)) ? "0" : "") + String(arr.date)) //日(2桁)
-    .replace(/g/g, arr.hours - ((arr.hours <= 12) ? 0 : 12)) //時(12時間単位)(1~2桁)
-    .replace(/h/g, ((valueBetween(arr.hours, 10, 12) || valueBetween(arr.hours, 22, 24)) ? "" : "0") + String(arr.hours - ((arr.hours <= 12) ? 0 : 12))) //時(12時間単位)(2桁)
-    .replace(/G/g, arr.hours) //時(24時間単位)(1~2桁)
-    .replace(/H/g, ((!Math.floor(arr.hours / 10)) ? "0" : "") + String(arr.hours)) //時(24時間単位)(2桁)
-    .replace(/i/g, ((!Math.floor(arr.minutes / 10)) ? "0" : "") + String(arr.minutes)) //分(2桁)
-    .replace(/s/g, ((!Math.floor(arr.seconds / 10)) ? "0" : "") + String(arr.seconds)) //秒(2桁)
-    .replace(/v|u/g, arr.milliseconds) //ミリ秒
-    .replace(/(?<=j)S/g, () => { //日(1st,2nd,3rd,4th...)
-        switch(arr.date % 10){
-            case(1):    return "st";
-            case(2):    return "nd";
-            case(3):    return "rd";
-            default:    return "th";
-        }
-    })
-    .replace(/j/g, arr.date) //日(1~2桁)
-    .replace(/a/g, (arr.hours < 12) ? "am" : "pm") //午前or午後(小文字)
-    .replace(/A/g, (arr.hours < 12) ? "AM" : "PM") //午前or午後(大文字)
-    .replace(/F/g, getFullSpellMonth(arr.month)) //月(フルスペル)
-    .replace(/M/g, str_split(getFullSpellMonth(arr.month), 0, 2)) //月(3文字)
-    .replace(/l/g, getFullSpellDay(arr.day)) //曜日(フルスペル)
-    .replace(/D/g, str_split(getFullSpellDay(arr.day), 0, 2))//曜日(3文字)
-
-    return result;
-}
-
-/**
  * その月の初日の曜日を取得
  * @param {Number} year 
  * @param {Number} month 
@@ -207,34 +133,6 @@ function UTCToClientTimezone(DateObject = undefined, timezoneOffset = undefined)
 }
 
 /**
- * 文字切り出し
- * @param {string} str
- * @param {number} from
- * @param {number} to
- * @returns {string}
- * */
-function str_split(str, from, to){
-    let len = str.length;
-    let result = "";
-
-    from += (from < 0) ? len : 0;
-    to += (to < 0) ? len : 0;
-
-    if(from <= to){
-        for(let i = from; i <= to; i++){
-            result += str.charAt(i);
-        }
-    }
-    else{
-        for(let i = from; i >= to; i--){
-            result += str.charAt(i);
-        }
-    }
-
-    return result;
-}
-
-/**
  * 値がfromとtoの間にあるかを検証
  * @param {Any} value 
  * @param {Any} from 
@@ -254,7 +152,7 @@ function valueBetween(value, from, to, includeEqual = true){
 
 /**
  * Element の中の全要素削除
- * @param {HTMLElement} Element Target Element (Parent)
+ * @param {Element} Element Target Element (Parent)
  */
 function removeAllChildElements(Element){
     while(Element.firstChild){
@@ -266,14 +164,14 @@ function removeAllChildElements(Element){
 
 /**
  * ```targetElement```内のすべての要素を取得(どれだけ階層が下でも兎に角全部)
- * @param {HTMLElement} targetElement 
+ * @param {Element} targetElement 
  */
 function getAllChildren(targetElement){
     let result = Array();
-    let childrenElements = targetElement.children;
+    let childElements = targetElement.children;
 
-    for(let i = 0; i < childrenElements.length; i++){
-        let elem = childrenElements[i];
+    for(let i = 0; i < childElements.length; i++){
+        let elem = childElements[i];
         result.push(elem);
         
         if(elem.children.length > 0){
@@ -282,6 +180,69 @@ function getAllChildren(targetElement){
             });
         }
     }
+
+    return result;
+}
+
+/**
+ * ```targetElement```に関わる全ての親要素の取得(htmlまでいく)
+ * @param {Element} targetElement 
+ * @returns {Array} 添え字0の値は```HTMLElement```になってるはず
+ */
+function getAllParents(targetElement){
+    let parentElement = targetElement.parentElement;
+
+    if(isset(parentElement)){
+        return [...getAllParents(parentElement), parentElement];
+    }
+    else{
+        //もうこれ以上親要素がない
+        return Array();
+    }
+}
+
+/**
+ * ```targetElement```にCSSで付けられた値を取得 (恐ろしいほどに処理が多いので何度も実行すると重くなる可能性アリ)
+ * @param {Element} targetElement 
+ * @param {Boolean} getInheritedStyle 継承された値も取得
+ * @returns {Object}
+ */
+function getStyleDeclarations(targetElement, getInheritedStyle = false, getFromCSSStyleSheet = true){
+    let CSS = document.styleSheets;
+    let result = Object();
+
+    if(getInheritedStyle){
+        [...getAllParents(targetElement), targetElement].forEach(element => {
+            let style = getStyleDeclarations(element, false, getFromCSSStyleSheet);
+            Object.keys(style).forEach(key => {
+                result[key] = style[key];
+            });
+        });
+    }
+    else if(getFromCSSStyleSheet){
+        //スタイルシートにちゃんと書いてあるやつ
+        [...CSS].forEach(value => { //読み込んだCSSごとに
+            [...value.cssRules].forEach(rule => { //CSSの一つの纏まり`{...}`ごとに
+                //セレクターの文字列で検索して合致するかチェックし、合致したらそのスタイルの値を記録していく
+                let elements = document.querySelectorAll(rule.selectorText);
+
+                [...elements].forEach(element => {
+                    if(element === targetElement){
+                        let style = rule.style;
+                        [...style].forEach(styleValue => {
+                            result[styleValue] = style[styleValue];
+                        });
+                    }
+                });
+            });
+        });
+    }
+
+    //直書きされてるやつ
+    let style = targetElement.style;
+    [...style].forEach(value => {
+        result[value] = style[value];
+    });
 
     return result;
 }
@@ -315,31 +276,6 @@ function sliceStyleValue(styleValue) {
 }
 
 /**
- * 1つの左辺に対して複数の右辺が全て等しいか
- * @param {Any} leftSide 
- * @param  {...any} rightSide 
- * @param {Boolean} strict 厳密等価演算子を使う
- */
-function equalAllValues(leftSide, ...rightSide){
-    if(rightSide.length > 1 && rightSide[rightSide.length -1] === true){
-        for(let i = 0; i < rightSide.length - 1; i++){
-            if(leftSide !== rightSide[i]){
-                return false;
-            }
-        }
-    }
-    else{
-        for(let i = 0; i < rightSide.length; i++){
-            if(leftSide != rightSide[i]){
-                return false;
-            }
-        }
-    }
-
-    return true;
-}
-
-/**
  * `styleValue` の `index` 番目の値を `replaceValue` に変える
  * @param {String} styleValue 
  * @param {Number|Array} index 1次配列の場合は`,`で区切った[0]番目のなかの[1]番目の値、2次配列の場合は1次配列を複数
@@ -349,13 +285,16 @@ function equalAllValues(leftSide, ...rightSide){
 function replaceStyleValue(styleValue, index, replaceValue){
     let result = sliceStyleValue(styleValue);
 
+    let err_index_type = new TypeError("`index` must be Number (or Array)");
+    let err_out_of_range = new RangeError("`index` out of range");
+
     if(typeof(index) == "number"){
         result.forEach((arr, i1) => {
             if(isset(result[i1][index])){
                 result[i1][index] = replaceValue;
             }
             else {
-                throw new Error("`index` is out of range!");
+                throw err_out_of_range;
             }
         });
     }
@@ -371,18 +310,62 @@ function replaceStyleValue(styleValue, index, replaceValue){
          *          ・index[n][1][0], ..., index[n][1][m] が全て整数 *
          */
 
-        result.forEach((v, i) => { // index[n]<Array> (ただしn = i)
-            if(result[i].length == 2 && equalAllValues);
+        index.forEach(v => { // index[n]<Array> (ただしn = i)
+            if(v.length == 2 && typeof(v[0]) == "number"){
+                //result[index[i][0]][index[i][1]] を置き換え(v = index[i])
+                if(v[0] < result.length){
+                    if(typeof(v[1]) == "number"){
+                        if(v[1] < result[v[0]].length){
+                            result[v[0]][v[1]] = replaceValue;
+                        }
+                        else{
+                            throw err_out_of_range;
+                        }
+                    }
+                    else if(v[1] instanceof Array){
+                        v[1].forEach(v2 => {
+                            if(typeof(v2) == "number"){
+                                if(v2 < result[v[0]].length){
+                                    result[v[0]][v2] = replaceValue;
+                                }
+                                else{
+                                    throw err_out_of_range;
+                                }
+                            }
+                            else{
+                                throw err_index_type;
+                            }
+                        });
+                    }
+                    else{
+                        throw err_index_type;
+                    }
+                }
+                else{
+                    throw err_out_of_range;
+                }
+            }
+            else{
+                throw err_index_type;
+            }
         });
     }
     else{
-        throw new Error("`index` must be Number or Array!");
+        throw err_index_type;
     }
 
+    //配列から文字列に変換
     let resultStr = String();
-    console.log(result);
+    
+    result.forEach(v1 => {
+        let tmp = String();
+        v1.forEach(v2 => {
+            tmp += ("\x20" + v2);
+        });
+        resultStr += ("," + tmp);
+    });
 
-    return resultStr;
+    return resultStr.slice(2);
 }
 
 /// DOMツリー読み込み後実行 ///
