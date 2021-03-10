@@ -58,8 +58,17 @@ class page{
         $this->account_info = $this->account->getinfo();
 
         $lang = "";
-        if(isset($_COOKIE["_lang"]) && preg_match("/^(JA|ja|EN|en)$/", $_COOKIE["_lang"])){
-            switch($_COOKIE["_lang"]){
+        if(isset($_GET["lang"])){
+            //GETが最優先
+            $lang = $_GET["lang"];
+        }
+        else if(isset($_COOKIE["_lang"])){
+            //GETがない場合はCookieを参照
+            $lang = $_COOKIE["_lang"];
+        }
+        //チェック
+        if(preg_match("/^(JA|ja|EN|en)$/", $lang)){
+            switch($lang){
                 case("JA"):
                 case("ja"):
                     $lang = "JA";
@@ -72,8 +81,9 @@ class page{
         }
         else{
             $lang = "JA";
-            setcookie("_lang", "JA", 0, "/");
         }
+        //クッキーに保存
+        setcookie("_lang", $lang, 0, "/");
 
         //言語データ取得
         $this->lang_data = json_decode(file_get_contents("{$this->relPATH}lang/{$lang}.json"), true);

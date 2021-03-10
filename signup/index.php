@@ -9,38 +9,42 @@ if($page->get_account_info()["login"]){
     exit();
 }
 else{
-    if(isset($_POST["_TOKEN"]) && isset($_POST["_NAME"]) && isset($_POST["_PASS"]) && $_POST["_TOKEN"] === $_SESSION["form_token"]){
-        unset($_SESSION["form_token"]);
+    if(isset($_POST["_NAME"]) && isset($_POST["_PASS"])){
+        if(isset($_POST["_TOKEN"]) && $_POST["_TOKEN"] === $_SESSION["form_token"]){
+            unset($_SESSION["form_token"]);
 
-        $page->set_info([
-            "TITLE" =>  "処理中..."
-        ]);
+            $page->set_info([
+                "TITLE" =>  "処理中..."
+            ]);
 
-        $name = $_POST["_NAME"];
-        $pass = $_POST["_PASS"];
+            $name = $_POST["_NAME"];
+            $pass = $_POST["_PASS"];
 
-        $DB = new database();
-        if($DB->connect()){
-            $accountCreation = new create_account();
-            $accountCreation->create($name, $pass, false, true);
+            $DB = new database();
+            if($DB->connect()){
+                $accountCreation = new create_account();
+                $accountCreation->create($name, $pass, false, true);
 
-            $DB->disconnect();
+                $DB->disconnect();
+            }
+            else{
+                exit("DATABASE_CONNECTION_ERROR");
+            }
+
+            header("Location: ../home/");
+            exit;
         }
         else{
-            exit("DATABASE_CONNECTION_ERROR");
+            //トークン認証失敗
         }
-
-        header("Location: ../home/");
-        exit;
     }
-    else{
-        $page->set_info([
-            "TITLE" =>  "アカウントの作成"
-        ]);
+    
+    $page->set_info([
+        "TITLE" =>  "アカウントの作成"
+    ]);
 
-        $form_token = rand_text();
-        $_SESSION["form_token"] = $form_token;
-    }
+    $form_token = rand_text();
+    $_SESSION["form_token"] = $form_token;
 }
 
 ?>

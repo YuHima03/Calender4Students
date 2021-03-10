@@ -299,6 +299,92 @@ function mod(a, b){
     );
 }
 
+/**
+ * スタイルの値を分割して
+ * @param {String} styleValue 
+ * @returns {Array}
+ */
+function sliceStyleValue(styleValue) {
+    let result = [];
+    [...styleValue.split(/,/)].forEach(value => {
+        let splitValue = value.match(/\S+/g);
+        result.push([...splitValue]);
+    });
+
+    return result;
+}
+
+/**
+ * 1つの左辺に対して複数の右辺が全て等しいか
+ * @param {Any} leftSide 
+ * @param  {...any} rightSide 
+ * @param {Boolean} strict 厳密等価演算子を使う
+ */
+function equalAllValues(leftSide, ...rightSide){
+    if(rightSide.length > 1 && rightSide[rightSide.length -1] === true){
+        for(let i = 0; i < rightSide.length - 1; i++){
+            if(leftSide !== rightSide[i]){
+                return false;
+            }
+        }
+    }
+    else{
+        for(let i = 0; i < rightSide.length; i++){
+            if(leftSide != rightSide[i]){
+                return false;
+            }
+        }
+    }
+
+    return true;
+}
+
+/**
+ * `styleValue` の `index` 番目の値を `replaceValue` に変える
+ * @param {String} styleValue 
+ * @param {Number|Array} index 1次配列の場合は`,`で区切った[0]番目のなかの[1]番目の値、2次配列の場合は1次配列を複数
+ * @param {String} replaceValue 
+ * @returns {String}
+ */
+function replaceStyleValue(styleValue, index, replaceValue){
+    let result = sliceStyleValue(styleValue);
+
+    if(typeof(index) == "number"){
+        result.forEach((arr, i1) => {
+            if(isset(result[i1][index])){
+                result[i1][index] = replaceValue;
+            }
+            else {
+                throw new Error("`index` is out of range!");
+            }
+        });
+    }
+    else if(index instanceof Array){
+        /**
+         * index が配列の場合...
+         * 以下の3通りの記述が可能
+         * 
+         * ・index[0], index[1] が共に整数 * 
+         * ・index[0], ..., index[n] が全て配列 かつ
+         *      ・index[n][0], index[n][1] が共に整数 *
+         *      ・index[n][0] が整数で index[n][1] が配列 かつ
+         *          ・index[n][1][0], ..., index[n][1][m] が全て整数 *
+         */
+
+        result.forEach((v, i) => { // index[n]<Array> (ただしn = i)
+            if(result[i].length == 2 && equalAllValues);
+        });
+    }
+    else{
+        throw new Error("`index` must be Number or Array!");
+    }
+
+    let resultStr = String();
+    console.log(result);
+
+    return resultStr;
+}
+
 /// DOMツリー読み込み後実行 ///
 $(function(){
     //a要素のセキュリティ対策
